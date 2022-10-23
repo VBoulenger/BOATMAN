@@ -52,9 +52,85 @@ def list_params(operator_name):
             print(value)
         print('________________')
 
+def create_subset(source, x, y, width, height):
+    # Subsetting
+    parameters = HashMap()
+    parameters.put('copyMetadata', True)
+    parameters.put('region', '{x},{y},{width},{height}'.format(
+        x=x, y=y, width=width, height=height)
+                   )
+    return GPF.createProduct('Subset', parameters, source)
+
+def apply_orbit_corrections(source):
+    # Applying orbit corrections
+
+    GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
+
+    parameters = HashMap() #TODO: check parameter
+    parameters.put('orbitType', 'Sentinel Precise (Auto Download)')
+    parameters.put('polyDegree', '3')
+    parameters.put('continueOnFail', 'False')
+
+    return GPF.createProduct('Apply-Orbit-File', parameters, source)
+
+def calibrate(source):
+    # Calibration
+
+    parameters = HashMap()
+    parameters.put('outputSigmaBand', True)
+    parameters.put('sourceBands', 'Intensity_VV')
+    parameters.put('selectedPolarisations', "VV")
+    parameters.put('outputImageScaleInDb', False)
+
+    return GPF.createProduct("Calibration", parameters, source)
+
+def remove_thermal_noise(source):
+    # Thermal Noise Removal
+
+    parameters = HashMap()
+    parameters.put('removeThermalNoise', True)
+    return GPF.createProduct('ThermalNoiseRemoval', parameters, source)
+
+
+def speckle_filtering(source):
+    # Speckle Filtering
+
+    parameters = HashMap()
+    parameters.put('filter', 'Lee')
+    parameters.put('filterSizeX', '5')
+    parameters.put('filtersizeY', '5')
+
+    return GPF.createProduct('Speckle-Filter', parameters, source)
+
+
+def apply_terrain_corrections(source):
+    # Terrain Corrections
+    # TODO: Not needed for us.
+    # https://rudigens.github.io/asf_seminar/terrain_correction.pdf
+
+    parameters = HashMap()
+    parameters.put('demName', 'SRTM 3Sec')
+    parameters.put('nodataValueAtSea', False)
+
+    return GPF.createProduct('Terrain-Correction', parameters, source)
+
+# TODO: GRD corrections not needed ?
+
+def land_sea_mask(source):
+    # Land Sea Mask
+    # TODO: import our own masks ? => better results
+
+    parameters = HashMap()
+    parameters.put('shorelineExtension', '15')
+
+    return GPF.createProduct('Land-Sea-Mask', parameters, source)
+
+def preprocessing(source):
+    return land_sea_mask(speckle_filtering(remove_thermal_noise(calibrate(apply_orbit_corrections(source)))))
+
 
 # Set Path to Input Satellite Data
-path = "/home/vincent/Documents/PMI/Data/Singapour/S1A_IW_GRDH_1SDV_20220930T224817_20220930T224842_045240_056864_E2A7.zip"
+path = "/home/vincent/Documents/PMI/Data/Singapour/S1A_IW_GRDH_1SDV_20221012T224816_20221012T224841_045415_056E4B_7DC8.zip"
 
 # Read File
 input_product = ProductIO.readProduct(path)
@@ -62,70 +138,9 @@ input_product = ProductIO.readProduct(path)
 # Get info
 show_product_information(input_product)
 
-# Subsetting
-parameters = HashMap()
-parameters.put('copyMetadata', True)
-parameters.put('region', '{x},{y},{width},{height}'.format(
-    x=1200, y=1100, width=3000, height=3000)
-)
-subset_product = GPF.createProduct('Subset', parameters, input_product)
+subset_product = create_subset(input_product, 1200, 1100, 3000, 3000)
 
-
-# Applying orbit corrections
-
-parameters = HashMap() #TODO: check parameter
-
-GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
-
-parameters.put('orbitType', 'Sentinel Precise (Auto Download)')
-parameters.put('polyDegree', '3')
-parameters.put('continueOnFail', 'False')
-
-product = GPF.createProduct('Apply-Orbit-File', parameters, subset_product)
-
-# Calibration
-
-parameters = HashMap()
-parameters.put('outputSigmaBand', True)
-parameters.put('sourceBands', 'Intensity_VV')
-parameters.put('selectedPolarisations', "VV")
-parameters.put('outputImageScaleInDb', False)
-product = GPF.createProduct("Calibration", parameters, product)
-
-# Thermal Noise Removal
-
-parameters = HashMap()
-parameters.put('removeThermalNoise', True)
-product = GPF.createProduct('ThermalNoiseRemoval', parameters, product)
-
-# Speckle Filtering
-
-parameters = HashMap()
-parameters.put('filter', 'Lee')
-parameters.put('filterSizeX', '5')
-parameters.put('filtersizeY', '5')
-speckle_product = GPF.createProduct('Speckle-Filter', parameters, product)
-
-
-# Terrain Corrections
-# TODO: Is it needed for ship detections ? Probably not but better check that
-# Also create a problem => no TiePointGrid after applying corrections
-
-# parameters = HashMap()
-# parameters.put('demName', 'SRTM 3Sec')
-# parameters.put('nodataValueAtSea', False)
-
-# product = GPF.createProduct('Terrain-Correction', parameters, product)
-
-# TODO: GRD corrections not needed ?
-
-# Land Sea Mask
-# TODO: import our own masks ? => better results
-
-parameters = HashMap()
-parameters.put('shorelineExtension', '15')
-product = GPF.createProduct('Land-Sea-Mask', parameters, speckle_product)
-
+preprocessed_product = preprocessing(subset_product)
 
 # Adaptive thresholding
 
@@ -138,7 +153,7 @@ parameters.put('backgroundWindowSizeInMeter', '800') # he background window size
 parameters.put('pfa', '12.5') # Positive number for parameter x
 # TODO: litterature on CFAR ? => better parameters (especially PFA ?)
 
-thresholded_product = GPF.createProduct('Adaptivethresholding', parameters, product)
+thresholded_product = GPF.createProduct('Adaptivethresholding', parameters, preprocessed_product)
 
 # Object Discrimination
 # This step is used to filter out false targets based on minimum and maximum size limits
