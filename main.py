@@ -178,18 +178,11 @@ detection_applied_product.getBand('Sigma0_VV_ship_bit_msk').loadRasterData()
 
 print('Operation took: {} seconds'.format(time.time() - t_0))
 
-# Read vector data
-
-# print(list(detection_applied_product.getVectorDataGroup().getNodeNames()))
-
 # Access ship detections list
 
 ship_detections = detection_applied_product.getVectorDataGroup().get('ShipDetections')
-# print(ship_detections)
 ship_detections_vector = jpy.cast(ship_detections, jpy.get_type('org.esa.snap.core.datamodel.VectorDataNode'))
-# print(ship_detections_vector.getFeatureCollection())
-# print(ship_detections_vector.getFeatureCollection().getCount())
-# print(list(ship_detections_vector.getFeatureCollection().toArray()))
+
 
 # Constructing table of detections
 # TODO: test other method of creating GeoDataFrame for better performances
