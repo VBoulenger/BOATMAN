@@ -130,7 +130,7 @@ def preprocessing(source):
 
 
 # Set Path to Input Satellite Data
-path = "/home/vincent/Documents/PMI/Data/Singapour/S1A_IW_GRDH_1SDV_20221012T224816_20221012T224841_045415_056E4B_7DC8.zip"
+path = "Data/Singapour/S1A_IW_GRDH_1SDV_20221012T224816_20221012T224841_045415_056E4B_7DC8.zip"
 
 # Read File
 input_product = ProductIO.readProduct(path)
