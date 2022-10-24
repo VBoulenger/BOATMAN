@@ -37,8 +37,8 @@ python3 setup.py install
 
 Defaults locations are:
 
-| Location            | Default path              |
-|---------------------|---------------------------|
-| <snap-install-dir>  | ~ (home directory)        |
-| <conda-install-dir> | ~/{Ana,mini}conda3/       |
-| <snappy-dir>        | .snap/snap-python/snappy/ |
+| Location           | Default path              |
+|--------------------|---------------------------|
+| snap-install-dir   | ~ (home directory)        |
+| conda-install-dir  | ~/{Ana,mini}conda3/       |
+| snappy-dir         | .snap/snap-python/snappy/ |
