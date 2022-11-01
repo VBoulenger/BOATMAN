@@ -15,6 +15,7 @@ from tqdm.contrib import itertools
 from snappy import ProductIO, GPF, HashMap
 import jpy
 
+
 def plot_band(product, band, vmin, vmax, clip_factor):
 
     band = product.getBand(band)
@@ -26,7 +27,13 @@ def plot_band(product, band, vmin, vmax, clip_factor):
         band.readPixels(i * w, j * h, w, h, band_data)
 
         band_data.shape = h, w
-        plt.imsave("Test/Image{}.{}.png".format(j, i), band_data, cmap='gray', vmin=vmin, vmax=vmax)
+        plt.imsave(
+            "Test/Image{}.{}.png".format(j, i),
+            band_data,
+            cmap="gray",
+            vmin=vmin,
+            vmax=vmax,
+        )
 
 
 def show_product_information(product):
@@ -42,65 +49,72 @@ def show_product_information(product):
 
 def list_params(operator_name):
     GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
-    op_spi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operator_name)
-    print('Op name:', op_spi.getOperatorDescriptor().getName())
-    print('Op alias:', op_spi.getOperatorDescriptor().getAlias())
+    op_spi = (
+        GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operator_name)
+    )
+    print("Op name:", op_spi.getOperatorDescriptor().getName())
+    print("Op alias:", op_spi.getOperatorDescriptor().getAlias())
     param_Desc = op_spi.getOperatorDescriptor().getParameterDescriptors()
     for param in param_Desc:
         print(param.getName(), "or", param.getAlias())
         for value in param.getValueSet():
             print(value)
-        print('________________')
+        print("________________")
+
 
 def create_subset(source, x, y, width, height):
     # Subsetting
     parameters = HashMap()
-    parameters.put('copyMetadata', True)
-    parameters.put('region', '{x},{y},{width},{height}'.format(
-        x=x, y=y, width=width, height=height)
-                   )
-    return GPF.createProduct('Subset', parameters, source)
+    parameters.put("copyMetadata", True)
+    parameters.put(
+        "region",
+        "{x},{y},{width},{height}".format(x=x, y=y, width=width, height=height),
+    )
+    return GPF.createProduct("Subset", parameters, source)
+
 
 def apply_orbit_corrections(source):
     # Applying orbit corrections
 
     GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
 
-    parameters = HashMap() #TODO: check parameter
-    parameters.put('orbitType', 'Sentinel Precise (Auto Download)')
-    parameters.put('polyDegree', '3')
-    parameters.put('continueOnFail', 'False')
+    parameters = HashMap()  # TODO: check parameter
+    parameters.put("orbitType", "Sentinel Precise (Auto Download)")
+    parameters.put("polyDegree", "3")
+    parameters.put("continueOnFail", "False")
 
-    return GPF.createProduct('Apply-Orbit-File', parameters, source)
+    return GPF.createProduct("Apply-Orbit-File", parameters, source)
+
 
 def calibrate(source):
     # Calibration
 
     parameters = HashMap()
-    parameters.put('outputSigmaBand', True)
-    parameters.put('sourceBands', 'Intensity_VV')
-    parameters.put('selectedPolarisations', "VV")
-    parameters.put('outputImageScaleInDb', False)
+    parameters.put("outputSigmaBand", True)
+    parameters.put("sourceBands", "Intensity_VV")
+    parameters.put("selectedPolarisations", "VV")
+    parameters.put("outputImageScaleInDb", False)
 
     return GPF.createProduct("Calibration", parameters, source)
+
 
 def remove_thermal_noise(source):
     # Thermal Noise Removal
 
     parameters = HashMap()
-    parameters.put('removeThermalNoise', True)
-    return GPF.createProduct('ThermalNoiseRemoval', parameters, source)
+    parameters.put("removeThermalNoise", True)
+    return GPF.createProduct("ThermalNoiseRemoval", parameters, source)
 
 
 def speckle_filtering(source):
     # Speckle Filtering
 
     parameters = HashMap()
-    parameters.put('filter', 'Lee')
-    parameters.put('filterSizeX', '5')
-    parameters.put('filtersizeY', '5')
+    parameters.put("filter", "Lee")
+    parameters.put("filterSizeX", "5")
+    parameters.put("filtersizeY", "5")
 
-    return GPF.createProduct('Speckle-Filter', parameters, source)
+    return GPF.createProduct("Speckle-Filter", parameters, source)
 
 
 def apply_terrain_corrections(source):
@@ -109,24 +123,31 @@ def apply_terrain_corrections(source):
     # https://rudigens.github.io/asf_seminar/terrain_correction.pdf
 
     parameters = HashMap()
-    parameters.put('demName', 'SRTM 3Sec')
-    parameters.put('nodataValueAtSea', False)
+    parameters.put("demName", "SRTM 3Sec")
+    parameters.put("nodataValueAtSea", False)
 
-    return GPF.createProduct('Terrain-Correction', parameters, source)
+    return GPF.createProduct("Terrain-Correction", parameters, source)
+
 
 # TODO: GRD corrections not needed ?
+
 
 def land_sea_mask(source):
     # Land Sea Mask
     # TODO: import our own masks ? => better results
 
     parameters = HashMap()
-    parameters.put('shorelineExtension', '15')
+    parameters.put("shorelineExtension", "15")
 
-    return GPF.createProduct('Land-Sea-Mask', parameters, source)
+    return GPF.createProduct("Land-Sea-Mask", parameters, source)
+
 
 def preprocessing(source):
-    return land_sea_mask(speckle_filtering(remove_thermal_noise(calibrate(apply_orbit_corrections(source)))))
+    return land_sea_mask(
+        speckle_filtering(
+            remove_thermal_noise(calibrate(apply_orbit_corrections(source)))
+        )
+    )
 
 
 # Set Path to Input Satellite Data
@@ -145,24 +166,32 @@ preprocessed_product = preprocessing(subset_product)
 # Adaptive thresholding
 
 parameters = HashMap()
-parameters.put('targetWindownSizeInMeter', '30') # Must be larger than spatial resolution, also give
+parameters.put(
+    "targetWindownSizeInMeter", "30"
+)  # Must be larger than spatial resolution, also give
 # minimum size of target to detect
-parameters.put('guardWindowSizeInMeter', '500') # maximum size of target
-parameters.put('backgroundWindowSizeInMeter', '800') # he background window size in metres; larger
+parameters.put("guardWindowSizeInMeter", "500")  # maximum size of target
+parameters.put(
+    "backgroundWindowSizeInMeter", "800"
+)  # he background window size in metres; larger
 # than the guard window size to ensure accurate calculation of the background statistics
-parameters.put('pfa', '12.5') # Positive number for parameter x
+parameters.put("pfa", "12.5")  # Positive number for parameter x
 # TODO: litterature on CFAR ? => better parameters (especially PFA ?)
 
-thresholded_product = GPF.createProduct('Adaptivethresholding', parameters, preprocessed_product)
+thresholded_product = GPF.createProduct(
+    "Adaptivethresholding", parameters, preprocessed_product
+)
 
 # Object Discrimination
 # This step is used to filter out false targets based on minimum and maximum size limits
 
 parameters = HashMap()
-parameters.put('minTargetSizeInMeter', '30')
-parameters.put('maxTargetSizeInMeter', '500')
+parameters.put("minTargetSizeInMeter", "30")
+parameters.put("maxTargetSizeInMeter", "500")
 
-detection_applied_product = GPF.createProduct('Object-Discrimination', parameters, thresholded_product)
+detection_applied_product = GPF.createProduct(
+    "Object-Discrimination", parameters, thresholded_product
+)
 
 show_product_information(detection_applied_product)
 ### Retrieval of vector data from product ###
@@ -174,14 +203,16 @@ print(list(detection_applied_product.getBandNames()))
 
 t_0 = time.time()
 
-detection_applied_product.getBand('Sigma0_VV_ship_bit_msk').loadRasterData()
+detection_applied_product.getBand("Sigma0_VV_ship_bit_msk").loadRasterData()
 
-print('Operation took: {} seconds'.format(time.time() - t_0))
+print("Operation took: {} seconds".format(time.time() - t_0))
 
 # Access ship detections list
 
-ship_detections = detection_applied_product.getVectorDataGroup().get('ShipDetections')
-ship_detections_vector = jpy.cast(ship_detections, jpy.get_type('org.esa.snap.core.datamodel.VectorDataNode'))
+ship_detections = detection_applied_product.getVectorDataGroup().get("ShipDetections")
+ship_detections_vector = jpy.cast(
+    ship_detections, jpy.get_type("org.esa.snap.core.datamodel.VectorDataNode")
+)
 
 
 # Constructing table of detections
@@ -189,18 +220,22 @@ ship_detections_vector = jpy.cast(ship_detections, jpy.get_type('org.esa.snap.co
 # https://gis.stackexchange.com/questions/345167/building-geodataframe-row-by-row
 
 
-tie_point_grid_longitude = thresholded_product.getTiePointGrid('longitude')
-tie_point_grid_latitude = thresholded_product.getTiePointGrid('latitude')
+tie_point_grid_longitude = thresholded_product.getTiePointGrid("longitude")
+tie_point_grid_latitude = thresholded_product.getTiePointGrid("latitude")
 
 tmp_list = []
 for simple_feat in ship_detections_vector.getFeatureCollection().toArray():
-    tmp_list.append({
-        'id' : simple_feat.getID(),
-        'det_w' : simple_feat.getAttribute('Detected_width'),
-        'det_l' : simple_feat.getAttribute('Detected_length'),
-        'geometry' : Point(simple_feat.getAttribute('Detected_lon'),
-                           simple_feat.getAttribute('Detected_lat'))
-    })
+    tmp_list.append(
+        {
+            "id": simple_feat.getID(),
+            "det_w": simple_feat.getAttribute("Detected_width"),
+            "det_l": simple_feat.getAttribute("Detected_length"),
+            "geometry": Point(
+                simple_feat.getAttribute("Detected_lon"),
+                simple_feat.getAttribute("Detected_lat"),
+            ),
+        }
+    )
 product_crs_wkt = detection_applied_product.getSceneGeoCoding().getMapCRS().toWKT()
 print(product_crs_wkt)
 ship_detections_gdf = gpd.GeoDataFrame(tmp_list, crs=product_crs_wkt)
@@ -209,8 +244,8 @@ ship_detections_gdf.plot()
 
 # Output
 
-output_data_dir = os.path.join('output_data', 'Singapour')
+output_data_dir = os.path.join("output_data", "Singapour")
 os.makedirs(output_data_dir, exist_ok=True)
-ship_detections_gdf.to_file(os.path.join(output_data_dir, 'ship_detections_gdf.shp'))
+ship_detections_gdf.to_file(os.path.join(output_data_dir, "ship_detections_gdf.shp"))
 
 # ProductIO.writeProduct(product , 'out/singapour', 'BEAM-DIMAP')
