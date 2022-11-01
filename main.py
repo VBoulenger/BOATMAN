@@ -2,7 +2,6 @@
 First opening of Sentinel-1 SAR data
 """
 
-import sys
 import os
 import time
 import numpy as np
@@ -194,8 +193,8 @@ detection_applied_product = GPF.createProduct(
 )
 
 show_product_information(detection_applied_product)
-### Retrieval of vector data from product ###
 
+# Retrieval of vector data from product
 print(list(detection_applied_product.getVectorDataGroup().getNodeNames()))
 print(list(detection_applied_product.getBandNames()))
 
