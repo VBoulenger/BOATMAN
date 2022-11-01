@@ -42,3 +42,14 @@ Defaults locations are:
 | snap-install-dir   | ~ (home directory)        |
 | conda-install-dir  | ~/{Ana,mini}conda3/       |
 | snappy-dir         | .snap/snap-python/snappy/ |
+
+## Git Hooks
+
+This project uses a formater and a linter on the codebase.
+Therefore, it is greatly recommended to use git hooks to enforce this behavior.
+
+A basic `pre-commit` hook is available within the repo, you can use it with:
+
+```bash
+git config --local core.hooksPath .githooks/
+```

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+Red='\033[0;31m'
+Green='\033[0;32m'
+NoColor='\033[0m'
+
+echo Reformating files with black...
+black main.py
+if [ $? -ne 0 ]; then
+    echo -e "${Red}black exited with non-zero value${NoColor}"
+    exit 1
+fi
+
+echo Linting files with flake8...
+flake8 --ignore=E501 main.py
+if [ $? -ne 0 ]; then
+    echo -e "${Red}flake8 exited with non-zero value${NoColor}"
+    exit 1
+fi
+
+echo -e "${Green}Linting succeed${NoColor}"
