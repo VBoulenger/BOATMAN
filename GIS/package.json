@@ -6,7 +6,7 @@
     "scripts": {
         "start": "beefy app.js:bundle.js --live",
         "bundle": "browserify app.js -o bundle.js",
-        "install": "git clone https://github.com/maneoverland/leaflet.WorldMiniMap.git node_modules/worldminimap  \n git clone https://github.com/MrMufflon/Leaflet.Coordinates.git node_modules/coordinates"
+        "install": "git clone https://github.com/maneoverland/leaflet.WorldMiniMap.git node_modules/worldminimap  \n git clone https://github.com/MrMufflon/Leaflet.Coordinates.git node_modules/coordinates \n git clone https://github.com/Leaflet/Leaflet.markercluster.git -b v1.4.1 node_modules/markercluster \n git clone https://github.com/thomasbrueggemann/leaflet.boatmarker.git node_modules/boatmarker"
     },
     "author": "",
     "license": "ISC",
