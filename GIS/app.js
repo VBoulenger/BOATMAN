@@ -16,3 +16,12 @@ L.control.scale({
     metrics: true,
     imperial: false
 }).addTo(map);
+
+L.control.worldMiniMap({
+    position: 'bottomright',
+    style: {
+	 opacity: 0.9,
+	 borderRadius: '0px',
+	 backgroundColor: 'lightblue'
+    }
+}).addTo(map);
