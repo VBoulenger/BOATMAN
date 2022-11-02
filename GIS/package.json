@@ -5,7 +5,8 @@
     "main": "app.js",
     "scripts": {
         "start": "beefy app.js:bundle.js --live",
-        "bundle": "browserify app.js -o bundle.js"
+        "bundle": "browserify app.js -o bundle.js",
+        "install": "git clone https://github.com/maneoverland/leaflet.WorldMiniMap.git node_modules/worldminimap"
     },
     "author": "",
     "license": "ISC",
