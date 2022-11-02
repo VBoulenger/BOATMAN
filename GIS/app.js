@@ -25,3 +25,11 @@ L.control.worldMiniMap({
 	 backgroundColor: 'lightblue'
     }
 }).addTo(map);
+
+L.control.coordinates({
+    position:"topright",
+    decimals:2,
+    decimalSeperator:",",
+    labelTemplateLat:"Latitude: {y}",
+    labelTemplateLng:"Longitude: {x}"
+}).addTo(map);
