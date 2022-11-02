@@ -43,6 +43,21 @@ Defaults locations are:
 | conda-install-dir  | ~/{Ana,mini}conda3/       |
 | snappy-dir         | .snap/snap-python/snappy/ |
 
+
+## Authentication
+
+This project uses data from the Copernicus Open Access Hub.
+Like most Data Hubs, it requires authentication.
+In order to be able to download data from the Copernicus Open Access Hub, you will need to enter your credentials in a file .netrc in your user home directory in the following form:
+
+```
+machine apihub.copernicus.eu
+login <your_username>
+password <your_password>
+```
+
+Getting a `401 Unauthorized` error means your credentials are wrong or not yet active.
+
 ## Git Hooks
 
 This project uses a formater and a linter on the codebase.
