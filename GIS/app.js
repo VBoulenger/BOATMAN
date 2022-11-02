@@ -10,3 +10,9 @@ L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
     maxZoom: 19,
     attribution: 'Google Satellite Hybrid'
 }).addTo(map);
+
+L.control.scale({
+    position: 'bottomleft',
+    metrics: true,
+    imperial: false
+}).addTo(map);
