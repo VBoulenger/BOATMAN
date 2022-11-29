@@ -1,3 +1,22 @@
+function createRealtimeLayer(url, container) {
+    return L.realtime(url, {
+	interval: 60 * 1000,
+	getFeatureId: function(f) {
+	    return f.properties.id;
+	},
+	cache: true,
+	container: container,
+	onEachFeature(f, l) {
+	    l.bindPopup(function() {
+		return '<h3>' + f.properties.id + '</h3>' +
+		    '<p>' + 'Shape: <strong>' + 'width: ' + f.properties.det_w + ', length: ' + f.properties.det_l + '</strong></p>' +
+		    '<p>Position: '+ f.geometry.coordinates[0].toPrecision(6) + ', ' + f.geometry.coordinates[1].toPrecision(6) + '</p>';
+	    });
+	}
+    });
+}
+
+
 // Initialize the map
 
 var map = new L.map('map');
