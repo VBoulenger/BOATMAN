@@ -5,9 +5,12 @@ the database (only reading for now).
 """
 
 from sqlalchemy.orm import Session
+from geojson import FeatureCollection
 
 from models import Detection
 
 
 def get_detections(db: Session):
-    return db.query(Detection).all()
+    dets_db = db.query(Detection).all()
+    dets_geojson = [det.to_geojson() for det in dets_db]
+    return FeatureCollection([dets_geojson])
