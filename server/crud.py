@@ -13,4 +13,4 @@ from models import Detection
 def get_detections(db: Session):
     dets_db = db.query(Detection).all()
     dets_geojson = [det.to_geojson() for det in dets_db]
-    return FeatureCollection([dets_geojson])
+    return FeatureCollection(dets_geojson)

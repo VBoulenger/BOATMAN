@@ -19,17 +19,12 @@ function createRealtimeLayer(url, container) {
 
 // Initialize the map
 
-var map = L.map('map'),
+var map = L.map('map', {center: [0, 0], zoom: 2.5, maxZoom: 18}),
     clusterGroup = L.markerClusterGroup().addTo(map),
     realtime = createRealtimeLayer('http://localhost:8000/ships.geojson', clusterGroup).addTo(map);
 
-realtime.once('update', function() {
-    map.fitBounds(realtime.getBounds(), {maxZoom: 3});
-});
-
 // Initialize the base layer
 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-    maxZoom: 19,
     attribution: 'Google Satellite Hybrid'
 }).addTo(map);
 
