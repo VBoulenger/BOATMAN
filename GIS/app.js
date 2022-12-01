@@ -30,7 +30,7 @@ function createRealtimeLayer(url, container) {
   });
 }
 
-// Initialize the map
+// Initialize the map -------------------------------------------------------------------
 
 var map = L.map("map", { center: [0, 0], zoom: 2.5, maxZoom: 18 }),
   clusterGroup = L.markerClusterGroup().addTo(map),
@@ -72,3 +72,27 @@ L.control
     labelTemplateLng: "Longitude: {x}",
   })
   .addTo(map);
+
+// Draw ---------------------------------------------------------------------------------
+
+// FeatureGroup is to store editable layers
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+map.addControl(
+  new L.Control.Draw({
+    draw: {
+      marker: false,
+      polygon: true,
+      polyline: false,
+      rectangle: true,
+      circle: true,
+    },
+    edit: { featureGroup: drawnItems },
+  }),
+);
+
+map.on("draw:created", function (e) {
+  // Each time a feaute is created, delete previously existing features
+  drawnItems.clearLayers();
+  drawnItems.addLayer(e.layer);
+});
