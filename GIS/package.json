@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "beefy": "^2.1.8",
+    "jquery": "^3.6.1",
     "leaflet": "^1.9.2"
   },
   "devDependencies": {

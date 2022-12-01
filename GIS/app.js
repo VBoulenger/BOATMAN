@@ -96,3 +96,23 @@ map.on("draw:created", function (e) {
   drawnItems.clearLayers();
   drawnItems.addLayer(e.layer);
 });
+
+// Export -------------------------------------------------------------------------------
+
+document.getElementById("export").onclick = function (e) {
+  // Extract GeoJson from featureGroup
+  var data = drawnItems.toGeoJSON();
+  $.ajax({
+    url: "http://127.0.0.1:8000/polygon",
+    async: true,
+    type: "post",
+    dataType: "json",
+    data: JSON.stringify(data),
+    success: function (result) {
+      console.log(result);
+    },
+    error: function (xhr, resp, text) {
+      console.log(xhr, resp, text);
+    },
+  });
+};
