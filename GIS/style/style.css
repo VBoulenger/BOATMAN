@@ -1,7 +1,26 @@
-#map,
-body,
-html {
-  height: 100%;
-  width: 100%;
+html,
+body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+}
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+#export {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  z-index: 500;
+  background: white;
+  color: black;
+  padding: 6px;
+  border-radius: 4px;
+  font-family: "Helvetica Neue";
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
 }
