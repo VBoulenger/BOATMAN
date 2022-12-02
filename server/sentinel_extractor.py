@@ -3,13 +3,13 @@ This module handles everything related to the download of files from the Coperni
 """
 from datetime import date
 
+from geojson import FeatureCollection
 from sentinelsat import geojson_to_wkt
-from sentinelsat import read_geojson
 from sentinelsat import SentinelAPI
 
 
 def download_sentinel_data(
-    geojson_file: str,
+    request_geojson: FeatureCollection,
     start_date: date,
     end_date: date,
     directory_path: str = ".",
@@ -20,12 +20,13 @@ def download_sentinel_data(
     This function download data from the Copernicus Open Access Hub based on a geojson.
     The geojson specifies the region of interest in which data is queried.
 
-    Note that you need to put your login credentials in a file to use this code, see the README for more information.
+    Note that you need to put your login credentials in a file to use this code, see the README
+    for more information.
 
     Parameters
     ----------
-    geojson_file: str
-        Path of the geojson file.
+    request_geojson: FeatureCollection
+        Geojson object containing polygon in which data in queried.
     start_date: :obj:`date`
         Start date at which data is queried.
     end_date: :obj:`date`
@@ -39,8 +40,7 @@ def download_sentinel_data(
     """
 
     api = SentinelAPI(None, None)
-
-    footprint = geojson_to_wkt(read_geojson(geojson_file))
+    footprint = geojson_to_wkt(request_geojson)
 
     products = api.query(
         footprint,
@@ -48,5 +48,8 @@ def download_sentinel_data(
         platformname=platformname,
         producttype=producttype,
     )
+
+    # Convert to Pandas DataFrame
+    api.to_dataframe(products)
 
     api.download_all(products, directory_path=directory_path)
