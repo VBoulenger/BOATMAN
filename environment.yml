@@ -1,12 +1,9 @@
 name: snap
 channels:
   - defaults
+  - terradue
+  - conda-forge
 dependencies:
-  - geopandas
-  - python=3.6
-  - shapely
-  - tqdm
-  - matplotlib
-  - numpy
+  - snapista
   - flake8
   - black

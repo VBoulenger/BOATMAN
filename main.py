@@ -1,250 +1,114 @@
 """
-First opening of Sentinel-1 SAR data
+Extract ship coordinates from SENTINEL-1 data files
 """
 
-import os
-import time
-import numpy as np
-import matplotlib.pyplot as plt
-from shapely.geometry import Point
-import geopandas as gpd
+from pathlib import Path
 
-from tqdm.contrib import itertools
-
-from snappy import ProductIO, GPF, HashMap
-import jpy
+from snapista import Graph
+from snapista import Operator
 
 
-def plot_band(product, band, vmin, vmax, clip_factor):
+def add_read_node(graph_l: Graph, input_filename: Path):
+    graph_l.add_node(
+        operator=Operator(
+            "Read",
+            formatName="SENTINEL-1",
+            file=str(input_filename),
+            copyMetadata="true",
+        ),
+        node_id="read",
+    )
 
-    band = product.getBand(band)
-    w = int(band.getRasterWidth() / clip_factor)
-    h = int(band.getRasterHeight() / clip_factor)
-    print(w, h)
-    for i, j in itertools.product(range(clip_factor), range(clip_factor)):
-        band_data = np.zeros(w * h, np.float32)
-        band.readPixels(i * w, j * h, w, h, band_data)
 
-        band_data.shape = h, w
-        plt.imsave(
-            "Test/Image{}.{}.png".format(j, i),
-            band_data,
-            cmap="gray",
-            vmin=vmin,
-            vmax=vmax,
+def add_write_node(graph_l: Graph, output_filename: Path):
+    if output_filename.suffix != ".dim":
+        raise NameError(
+            f"The output file has to be '.dim', but is currently: \"{output_filename}\""
         )
 
-
-def show_product_information(product):
-    width = product.getSceneRasterWidth()
-    print("Width: {} px".format(width))
-    height = product.getSceneRasterHeight()
-    print("Height: {} px".format(height))
-    name = product.getName()
-    print("Name: {}".format(name))
-    band_names = product.getBandNames()
-    print("Band names: {}".format(", ".join(band_names)))
-
-
-def list_params(operator_name):
-    GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
-    op_spi = (
-        GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operator_name)
+    graph_l.add_node(
+        operator=Operator("Write", formatName="BEAM-DIMAP", file=str(output_filename)),
+        node_id="write",
+        source="object_discrimination",
     )
-    print("Op name:", op_spi.getOperatorDescriptor().getName())
-    print("Op alias:", op_spi.getOperatorDescriptor().getAlias())
-    param_Desc = op_spi.getOperatorDescriptor().getParameterDescriptors()
-    for param in param_Desc:
-        print(param.getName(), "or", param.getAlias())
-        for value in param.getValueSet():
-            print(value)
-        print("________________")
 
 
-def create_subset(source, x, y, width, height):
-    # Subsetting
-    parameters = HashMap()
-    parameters.put("copyMetadata", True)
-    parameters.put(
-        "region",
-        "{x},{y},{width},{height}".format(x=x, y=y, width=width, height=height),
+def add_land_sea_mask(graph_l: Graph):
+    graph_l.add_node(
+        operator=Operator(
+            "Land-Sea-Mask",
+            landMask="true",
+            useSRTM="true",
+            invertGeometry="false",
+            shorelineExtension=10,
+        ),
+        node_id="land_sea_mask",
+        source="read",
     )
-    return GPF.createProduct("Subset", parameters, source)
 
 
-def apply_orbit_corrections(source):
-    # Applying orbit corrections
-
-    GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
-
-    parameters = HashMap()  # TODO: check parameter
-    parameters.put("orbitType", "Sentinel Precise (Auto Download)")
-    parameters.put("polyDegree", "3")
-    parameters.put("continueOnFail", "False")
-
-    return GPF.createProduct("Apply-Orbit-File", parameters, source)
-
-
-def calibrate(source):
-    # Calibration
-
-    parameters = HashMap()
-    parameters.put("outputSigmaBand", True)
-    parameters.put("sourceBands", "Intensity_VV")
-    parameters.put("selectedPolarisations", "VV")
-    parameters.put("outputImageScaleInDb", False)
-
-    return GPF.createProduct("Calibration", parameters, source)
-
-
-def remove_thermal_noise(source):
-    # Thermal Noise Removal
-
-    parameters = HashMap()
-    parameters.put("removeThermalNoise", True)
-    return GPF.createProduct("ThermalNoiseRemoval", parameters, source)
-
-
-def speckle_filtering(source):
-    # Speckle Filtering
-
-    parameters = HashMap()
-    parameters.put("filter", "Lee")
-    parameters.put("filterSizeX", "5")
-    parameters.put("filtersizeY", "5")
-
-    return GPF.createProduct("Speckle-Filter", parameters, source)
-
-
-def apply_terrain_corrections(source):
-    # Terrain Corrections
-    # TODO: Not needed for us.
-    # https://rudigens.github.io/asf_seminar/terrain_correction.pdf
-
-    parameters = HashMap()
-    parameters.put("demName", "SRTM 3Sec")
-    parameters.put("nodataValueAtSea", False)
-
-    return GPF.createProduct("Terrain-Correction", parameters, source)
-
-
-# TODO: GRD corrections not needed ?
-
-
-def land_sea_mask(source):
-    # Land Sea Mask
-    # TODO: import our own masks ? => better results
-
-    parameters = HashMap()
-    parameters.put("shorelineExtension", "15")
-
-    return GPF.createProduct("Land-Sea-Mask", parameters, source)
-
-
-def preprocessing(source):
-    return land_sea_mask(
-        speckle_filtering(
-            remove_thermal_noise(calibrate(apply_orbit_corrections(source)))
-        )
+def add_calibration(graph_l: Graph):
+    graph_l.add_node(
+        operator=Operator(
+            "Calibration",
+            auxFile="Product Auxiliary File",
+            outputImageInComplex="false",
+            outputImageScaleInDb="false",
+            createGammaBand="false",
+            createBetaBand="false",
+            outputSigmaBand="true",
+            outputGammaBand="false",
+            outputBetaBand="false",
+        ),
+        node_id="calibration",
+        source="land_sea_mask",
     )
+
+
+def add_adaptive_thresholding(graph_l: Graph):
+    graph_l.add_node(
+        operator=Operator(
+            "AdaptiveThresholding",
+            targetWindowSizeInMeter="50",
+            guardWindowSizeInMeter="500.0",
+            backgroundWindowSizeInMeter="800.0",
+            pfa="12.5",
+            estimateBackground="false",
+        ),
+        node_id="adaptive_thresholding",
+        source="calibration",
+    )
+
+
+def add_object_discrimination(graph_l: Graph):
+    graph_l.add_node(
+        operator=Operator(
+            "Object-Discrimination",
+            minTargetSizeInMeter="30.0",
+            maxTargetSizeInMeter="600.0",
+        ),
+        node_id="object_discrimination",
+        source="adaptive_thresholding",
+    )
+
+
+def add_preprocessing(graph_l: Graph):
+    add_land_sea_mask(graph_l)
+    add_calibration(graph_l)
+    add_adaptive_thresholding(graph_l)
+    add_object_discrimination(graph_l)
 
 
 # Set Path to Input Satellite Data
-path = "Data/Singapour/S1A_IW_GRDH_1SDV_20221012T224816_20221012T224841_045415_056E4B_7DC8.zip"
-
-# Read File
-input_product = ProductIO.readProduct(path)
-
-# Get info
-show_product_information(input_product)
-
-subset_product = create_subset(input_product, 1200, 1100, 3000, 3000)
-
-preprocessed_product = preprocessing(subset_product)
-
-# Adaptive thresholding
-
-parameters = HashMap()
-parameters.put(
-    "targetWindownSizeInMeter", "30"
-)  # Must be larger than spatial resolution, also give
-# minimum size of target to detect
-parameters.put("guardWindowSizeInMeter", "500")  # maximum size of target
-parameters.put(
-    "backgroundWindowSizeInMeter", "800"
-)  # he background window size in metres; larger
-# than the guard window size to ensure accurate calculation of the background statistics
-parameters.put("pfa", "12.5")  # Positive number for parameter x
-# TODO: litterature on CFAR ? => better parameters (especially PFA ?)
-
-thresholded_product = GPF.createProduct(
-    "Adaptivethresholding", parameters, preprocessed_product
+input_path = Path(
+    "Data/Singapour/S1A_IW_GRDH_1SDV_20221012T224816_20221012T224841_045415_056E4B_7DC8.zip"
 )
+output_path = Path("Data/Singapour/20221012_result.dim")
 
-# Object Discrimination
-# This step is used to filter out false targets based on minimum and maximum size limits
+graph = Graph()
 
-parameters = HashMap()
-parameters.put("minTargetSizeInMeter", "30")
-parameters.put("maxTargetSizeInMeter", "500")
+add_read_node(graph, input_path)
+add_preprocessing(graph)
+add_write_node(graph, output_path)
 
-detection_applied_product = GPF.createProduct(
-    "Object-Discrimination", parameters, thresholded_product
-)
-
-show_product_information(detection_applied_product)
-
-# Retrieval of vector data from product
-print(list(detection_applied_product.getVectorDataGroup().getNodeNames()))
-print(list(detection_applied_product.getBandNames()))
-
-# Load raster data
-
-t_0 = time.time()
-
-detection_applied_product.getBand("Sigma0_VV_ship_bit_msk").loadRasterData()
-
-print("Operation took: {} seconds".format(time.time() - t_0))
-
-# Access ship detections list
-
-ship_detections = detection_applied_product.getVectorDataGroup().get("ShipDetections")
-ship_detections_vector = jpy.cast(
-    ship_detections, jpy.get_type("org.esa.snap.core.datamodel.VectorDataNode")
-)
-
-
-# Constructing table of detections
-# TODO: test other method of creating GeoDataFrame for better performances
-# https://gis.stackexchange.com/questions/345167/building-geodataframe-row-by-row
-
-
-tie_point_grid_longitude = thresholded_product.getTiePointGrid("longitude")
-tie_point_grid_latitude = thresholded_product.getTiePointGrid("latitude")
-
-tmp_list = []
-for simple_feat in ship_detections_vector.getFeatureCollection().toArray():
-    tmp_list.append(
-        {
-            "id": simple_feat.getID(),
-            "det_w": simple_feat.getAttribute("Detected_width"),
-            "det_l": simple_feat.getAttribute("Detected_length"),
-            "geometry": Point(
-                simple_feat.getAttribute("Detected_lon"),
-                simple_feat.getAttribute("Detected_lat"),
-            ),
-        }
-    )
-product_crs_wkt = detection_applied_product.getSceneGeoCoding().getMapCRS().toWKT()
-print(product_crs_wkt)
-ship_detections_gdf = gpd.GeoDataFrame(tmp_list, crs=product_crs_wkt)
-
-ship_detections_gdf.plot()
-
-# Output
-
-output_data_dir = os.path.join("output_data", "Singapour")
-os.makedirs(output_data_dir, exist_ok=True)
-ship_detections_gdf.to_file(os.path.join(output_data_dir, "ship_detections_gdf.shp"))
-
-# ProductIO.writeProduct(product , 'out/singapour', 'BEAM-DIMAP')
+graph.run()
