@@ -5,5 +5,4 @@ channels:
   - conda-forge
 dependencies:
   - snapista
-  - flake8
-  - black
+  - pre-commit
