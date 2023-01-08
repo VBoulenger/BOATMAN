@@ -6,3 +6,7 @@ channels:
 dependencies:
   - snapista
   - pre-commit
+  - sqlalchemy
+  - geojson
+  - sentinelsat
+  - fastapi
