@@ -1,11 +1,10 @@
-# PMI 
+# PMI
 
 ## Installation
 
-
-This project uses [SNAP](https://step.esa.int/main/download/snap-download/), however its installation will be done automatically by conda. 
-To access `SNAP` through python, we use `snapista`, a conda package. 
-Unfortunately, very specific version of python packages are needed to install it. 
+This project uses [SNAP](https://step.esa.int/main/download/snap-download/), however its installation will be done automatically by conda.
+To access `SNAP` through python, we use `snapista`, a conda package.
+Unfortunately, very specific version of python packages are needed to install it.
 
 To ease the installation, we provide an `yml` file for conda to create a clean environment.
 
@@ -14,9 +13,11 @@ You can install it with:
 ```bash
 conda env create -f environment.yml
 ```
+
 The new environment will be called `snap`, documentation to change this can be found [here](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file).
 
 Don't forget to activate the environment with:
+
 ```bash
 conda activate snap
 ```
@@ -37,7 +38,7 @@ Getting a `401 Unauthorized` error means your credentials are wrong or not yet a
 
 ## Git Hooks
 
-This project uses a formater and a linter on the codebase.
+This project uses a formatter and a linter on the codebase.
 Therefore, it is greatly recommended to use git hooks to enforce this behavior.
 
 To do so, we use the `pre-commit` package, you just need to execute this command to get started:

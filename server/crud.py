@@ -3,11 +3,9 @@ Reusable functions to interact with the data in the database.
 Note that pydantic models should be defined and used if the goal is to modify
 the database (only reading for now).
 """
-
-from sqlalchemy.orm import Session
 from geojson import FeatureCollection
-
 from models import Detection
+from sqlalchemy.orm import Session
 
 
 def get_detections(db: Session):
