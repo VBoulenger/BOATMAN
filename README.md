@@ -40,8 +40,8 @@ Getting a `401 Unauthorized` error means your credentials are wrong or not yet a
 This project uses a formater and a linter on the codebase.
 Therefore, it is greatly recommended to use git hooks to enforce this behavior.
 
-A basic `pre-commit` hook is available within the repo, you can use it with:
+To do so, we use the `pre-commit` package, you just need to execute this command to get started:
 
 ```bash
-git config --local core.hooksPath .githooks/
+pre-commit install
 ```
