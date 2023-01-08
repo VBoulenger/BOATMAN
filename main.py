@@ -1,7 +1,6 @@
 """
 Extract ship coordinates from SENTINEL-1 data files
 """
-
 from pathlib import Path
 
 from snapista import Graph
