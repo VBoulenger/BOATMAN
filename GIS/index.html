@@ -52,7 +52,23 @@
   </head>
   <body>
     <div id="map"></div>
+
     <a href="#" id="export">Export Features</a>
+
+    <div id="time-ranges" class="leaflet-bar">
+      <form action="#" id="form">
+        <label for="from">
+          From
+          <input id="from" type="date" value="" name="from" />
+        </label>
+        <label for="to">
+          To
+          <input id="to" type="date" value="" name="to" />
+        </label>
+        <input type="submit" value="Update" />
+      </form>
+    </div>
+
     <script src="app.js"></script>
   </body>
 </html>
