@@ -112,8 +112,6 @@ def process(filename: Path):
 
     graph.run()
 
-    return output_path
-
 
 if __name__ == "__main__":
     # Set Path to Input Satellite Data
