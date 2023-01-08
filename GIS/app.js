@@ -30,7 +30,36 @@ function createRealtimeLayer(url, container) {
   });
 }
 
-// Initialize the map -------------------------------------------------------------------
+// Initialize date form -----------------------------------------------------------------
+
+// Get the input elements
+var fromInput = document.getElementById("from");
+var toInput = document.getElementById("to");
+
+// Get today's date
+var endDate = new Date();
+var startDate = new Date(endDate);
+startDate.setDate(startDate.getDate() - 4);
+
+// Format the date as a string in the "yyyy-mm-dd" format
+var endDateString =
+  endDate.getFullYear() +
+  "-" +
+  (endDate.getMonth() + 1).toString().padStart(2, "0") +
+  "-" +
+  endDate.getDate().toString().padStart(2, "0");
+var startDateString =
+  startDate.getFullYear() +
+  "-" +
+  (startDate.getMonth() + 1).toString().padStart(2, "0") +
+  "-" +
+  startDate.getDate().toString().padStart(2, "0");
+
+// Set the value of the input elements to the formatted date string
+fromInput.value = startDateString;
+toInput.value = endDateString;
+
+// Initialize the map --------------------------------------------------------------------
 
 var map = L.map("map", { center: [0, 0], zoom: 2.5, maxZoom: 18 }),
   clusterGroup = L.markerClusterGroup().addTo(map),
