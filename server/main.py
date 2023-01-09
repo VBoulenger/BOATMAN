@@ -2,6 +2,7 @@ from datetime import date
 from datetime import timedelta
 
 import crud
+import uvicorn
 from database import SessionLocal
 from fastapi import Depends
 from fastapi import FastAPI
@@ -42,3 +43,7 @@ async def get_polygon_data(req: Request):
     start_req_date = end_req_date - timedelta(days=5)
     download_sentinel_data(geo_dict, start_req_date, end_req_date)
     return
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", port=8000, log_level="info")
