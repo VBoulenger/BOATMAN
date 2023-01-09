@@ -1,8 +1,13 @@
+from datetime import date
+from datetime import timedelta
+
 import crud
 from database import SessionLocal
 from fastapi import Depends
 from fastapi import FastAPI
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
+from sentinel_extractor import download_sentinel_data
 from sqlalchemy.orm import Session
 
 app = FastAPI()
@@ -28,3 +33,12 @@ def get_db():
 @app.get("/ships.geojson")
 def read_db(db: Session = Depends(get_db)):
     return crud.get_detections(db)
+
+
+@app.post("/polygon")
+async def get_polygon_data(req: Request):
+    geo_dict = await req.json()
+    end_req_date = date.today()
+    start_req_date = end_req_date - timedelta(days=5)
+    download_sentinel_data(geo_dict, start_req_date, end_req_date)
+    return
