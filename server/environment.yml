@@ -10,3 +10,4 @@ dependencies:
   - geojson
   - sentinelsat
   - fastapi
+  - uvicorn
