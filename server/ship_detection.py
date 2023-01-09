@@ -99,6 +99,9 @@ def add_preprocessing(graph_l: Graph):
 
 
 def process(filename: Path):
+    if not filename.exists():
+        raise FileNotFoundError(filename)
+
     output_path = filename.with_suffix(".dim")
 
     graph = Graph()
