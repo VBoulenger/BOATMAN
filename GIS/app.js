@@ -59,19 +59,39 @@ var startDateString =
 fromInput.value = startDateString;
 toInput.value = endDateString;
 
-// Initialize the map --------------------------------------------------------------------
+// Create url for server query ----------------------------------------------------------
+
+var searchParams = new URLSearchParams();
+searchParams.set("startDate", startDateString);
+searchParams.set("endDate", endDateString);
+var searchString = searchParams.toString();
+
+// Create the URL object
+var url = new URL("http://localhost:8000/ships.geojson");
+
+// Append the search string to the URL
+url.search = searchString;
+
+// Initialize the map -------------------------------------------------------------------
 
 var map = L.map("map", { center: [0, 0], zoom: 2.5, maxZoom: 18 }),
   clusterGroup = L.markerClusterGroup().addTo(map),
-  realtime = createRealtimeLayer(
-    "http://localhost:8000/ships.geojson",
-    clusterGroup,
-  ).addTo(map);
+  realtime = createRealtimeLayer(url, clusterGroup).addTo(map);
 
 // Initialize the base layer
 L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
   attribution: "Google Satellite Hybrid",
 }).addTo(map);
+
+L.control
+  .coordinates({
+    position: "bottomleft",
+    decimals: 2,
+    decimalSeparator: ",",
+    labelTemplateLat: "Latitude: {y}",
+    labelTemplateLng: "Longitude: {x}",
+  })
+  .addTo(map);
 
 L.control
   .scale({
@@ -89,16 +109,6 @@ L.control
       borderRadius: "0px",
       backgroundColor: "lightblue",
     },
-  })
-  .addTo(map);
-
-L.control
-  .coordinates({
-    position: "topright",
-    decimals: 2,
-    decimalSeparator: ",",
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
   })
   .addTo(map);
 
