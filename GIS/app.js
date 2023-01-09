@@ -36,10 +36,11 @@ function createRealtimeLayer(url, container) {
 var fromInput = document.getElementById("from");
 var toInput = document.getElementById("to");
 
-// Get today's date
-var endDate = new Date();
-var startDate = new Date(endDate);
-startDate.setDate(startDate.getDate() - 4);
+// Get today's date or local storage
+var endDate = new Date(localStorage.getItem("endDate")) || new Date();
+var startDate =
+  new Date(localStorage.getItem("startDate")) ||
+  new Date().setDate(new Date().getDate() - 4);
 
 // Format the date as a string in the "yyyy-mm-dd" format
 var endDateString =
@@ -58,6 +59,13 @@ var startDateString =
 // Set the value of the input elements to the formatted date string
 fromInput.value = startDateString;
 toInput.value = endDateString;
+
+// Save data between reload
+
+window.onbeforeunload = function () {
+  localStorage.setItem("startDate", document.getElementById("from").value);
+  localStorage.setItem("endDate", document.getElementById("to").value);
+};
 
 // Create url for server query ----------------------------------------------------------
 
