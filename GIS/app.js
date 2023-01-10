@@ -9,21 +9,22 @@ function createRealtimeLayer(url, container) {
     onEachFeature(f, l) {
       l.bindPopup(function () {
         return (
-          "<h3>" +
+          "<h2 style='text-align: center;'><strong>Detection " +
           f.properties.id +
-          "</h3>" +
-          "<p>" +
-          "Shape: <strong>" +
-          "width: " +
+          "</strong></h2>" +
+          "<p><img src='/images/cargo_ship.jpg' alt='Picture of a cargo' width='100%' height='150'/></p>" +
+          "<h3><strong>Position:</strong></h3>" +
+          "<p style='text-align: center;'><strong>Longitude: </strong>" +
+          f.geometry.coordinates[0].toFixed(2) +
+          " deg&nbsp;&nbsp;&nbsp;&nbsp; <strong>Latitude: </strong>" +
+          f.geometry.coordinates[1].toFixed(2) +
+          " deg</p>" +
+          "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
+          "<p style='text-align: center;'><strong>Width: </strong>" +
           f.properties.det_w +
-          ", length: " +
+          " meters &nbsp;&nbsp;&nbsp; <strong>Length: </strong>" +
           f.properties.det_l +
-          "</strong></p>" +
-          "<p>Position: " +
-          f.geometry.coordinates[0].toPrecision(6) +
-          ", " +
-          f.geometry.coordinates[1].toPrecision(6) +
-          "</p>"
+          " meters</p>"
         );
       });
     },
