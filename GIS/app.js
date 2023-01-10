@@ -1,6 +1,6 @@
 function createRealtimeLayer(url, container) {
   return L.realtime(url, {
-    interval: 60 * 1000,
+    interval: 10 * 60 * 1000, // milliseconds
     getFeatureId: function (f) {
       return f.properties.id;
     },
