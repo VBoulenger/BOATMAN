@@ -66,8 +66,9 @@ def detect_ships_in_area(geo_dict: FeatureCollection):
 
 
 @app.get("/ships.geojson")
-def read_db(db: Session = Depends(get_db)):
-    return crud.get_detections(db)
+def read_db(start_date: date, end_date: date, db: Session = Depends(get_db)):
+    assert end_date > start_date
+    return crud.get_detections(db, start_date, end_date)
 
 
 @app.post("/polygon")
