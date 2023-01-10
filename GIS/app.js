@@ -71,8 +71,8 @@ window.onbeforeunload = function () {
 // Create url for server query ----------------------------------------------------------
 
 var searchParams = new URLSearchParams();
-searchParams.set("startDate", startDateString);
-searchParams.set("endDate", endDateString);
+searchParams.set("start_date", startDateString);
+searchParams.set("end_date", endDateString);
 var searchString = searchParams.toString();
 
 // Create the URL object
