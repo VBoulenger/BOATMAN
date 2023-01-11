@@ -104,6 +104,10 @@ def process(filename: Path):
 
     output_path = filename.with_suffix(".dim")
 
+    if output_path.exists():
+        print("Result already exists, skipping")
+        return
+
     graph = Graph()
 
     add_read_node(graph, input_path)
