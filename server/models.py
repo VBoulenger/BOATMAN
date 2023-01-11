@@ -15,7 +15,7 @@ class Detection(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    tile_id = Column(Integer, ForeignKey("tiles.id"))
+    tile_dataset = Column(String, ForeignKey("tiles.dataset"))
     tile = relationship("Tile", back_populates="detections")
 
     width = Column(Float)
@@ -34,17 +34,21 @@ class Detection(Base):
         )
 
     def __repr__(self):
-        return f"<Detection(id={self.id}, tile_id={self.tile_id}, width={self.width}, length={self.length}, latitude={self.latitude}, longitude={self.longitude}, pixel_x={self.pixel_x}, pixel_y={self.pixel_y})>"
+        return (
+            f"<Detection(id={self.id}, tile_dataset={self.tile_dataset},"
+            f" width={self.width}, length={self.length},"
+            f" latitude={self.latitude}, longitude={self.longitude},"
+            f" pixel_x={self.pixel_x}, pixel_y={self.pixel_y})>"
+        )
 
 
 class Tile(Base):
     __tablename__ = "tiles"
 
-    id = Column(Integer, primary_key=True, index=True)
     detections = relationship("Detection", order_by=Detection.id, back_populates="tile")
 
     input_path = Column(String)
-    dataset = Column(String)
+    dataset = Column(String, primary_key=True)
     descriptor = Column(String)
 
     orbit_type = Column(String)
