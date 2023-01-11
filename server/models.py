@@ -27,6 +27,18 @@ class Detection(Base):
     pixel_x = Column(Integer)
     pixel_y = Column(Integer)
 
+    def attributes_string(self):
+        attributes = [
+            attr
+            for attr in self.__class__.__dict__.keys()
+            if (
+                not callable(getattr(self, attr))
+                and not (attr.startswith("__") or attr.startswith("_sa_"))
+            )
+        ]
+        attributes.remove("tile")
+        return ",".join(attributes)
+
     def to_geojson(self):
         return Feature(
             geometry=Point((self.longitude, self.latitude)),
