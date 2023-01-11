@@ -12,8 +12,9 @@ body {
 }
 #analysis {
   position: absolute;
-  top: 275px;
+  top: 305px;
   left: 10px;
+  width: 120px;
   z-index: 500;
   background: white;
   color: black;
@@ -23,8 +24,26 @@ body {
   cursor: pointer;
   font-size: 12px;
   text-decoration: none;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
 }
-
+#export {
+  position: absolute;
+  top: 270px;
+  left: 10px;
+  width: 120px;
+  z-index: 500;
+  background: white;
+  color: black;
+  padding: 6px;
+  border-radius: 4px;
+  font-family: "Helvetica Neue";
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
+}
 #time-ranges {
   position: absolute;
   top: 10px;
