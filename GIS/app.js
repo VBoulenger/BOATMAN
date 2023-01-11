@@ -164,3 +164,58 @@ document.getElementById("analysis").onclick = function (e) {
     },
   });
 };
+
+// Export -------------------------------------------------------------------------------
+
+document.getElementById("export").onclick = function (e) {
+  $.ajax({
+    url: url,
+    async: true,
+    type: "get",
+    dataType: "text",
+    data: "data_type=csv",
+    success: function (result) {
+      console.log(typeof result);
+      result = result.slice(1, result.length - 1);
+      var lines = result.split("\\n");
+      var items = [];
+      var header = lines[0].split(",");
+      for (var i = 1; i < lines.length; i++) {
+        var obj = {};
+        var currentline = lines[i].split(",");
+
+        for (var j = 0; j < header.length; j++) {
+          obj[header[j]] = currentline[j];
+        }
+
+        items.push(obj);
+      }
+      const csv = [
+        header.join(","), // header row first
+        ...items.map((row) =>
+          header.map((fieldName) => JSON.stringify(row[fieldName])).join(","),
+        ),
+      ].join("\r\n");
+      let csvContent = "data:text/csv;charset=utf-8," + csv;
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        "detections_from_" + startDateString + "_to_" + endDateString + ".csv",
+      );
+      if (link.download !== undefined) {
+        document.body.appendChild(link);
+        link.click();
+      } else {
+        alert(
+          "Your browser does not support automatic download, please click OK and manually save the file",
+        );
+        window.open(encodedUri);
+      }
+    },
+    error: function (xhr, resp, text) {
+      console.log(xhr, resp, text);
+    },
+  });
+};
