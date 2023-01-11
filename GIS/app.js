@@ -145,9 +145,9 @@ map.on("draw:created", function (e) {
   drawnItems.addLayer(e.layer);
 });
 
-// Export -------------------------------------------------------------------------------
+// Analysis -----------------------------------------------------------------------------
 
-document.getElementById("export").onclick = function (e) {
+document.getElementById("analysis").onclick = function (e) {
   // Extract GeoJson from featureGroup
   var data = drawnItems.toGeoJSON();
   $.ajax({
