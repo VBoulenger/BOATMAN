@@ -53,6 +53,11 @@ class Detection(Base):
             f" pixel_x={self.pixel_x}, pixel_y={self.pixel_y})>"
         )
 
+    def to_csv(self):
+        fields = self.attributes_string().split(",")
+        data = [str(getattr(self, field)) for field in fields]
+        return ",".join(data)
+
 
 class Tile(Base):
     __tablename__ = "tiles"
