@@ -110,7 +110,7 @@ def process(filename: Path):
 
     graph = Graph()
 
-    add_read_node(graph, input_path)
+    add_read_node(graph, filename)
     add_preprocessing(graph)
     add_write_node(graph, output_path)
 
