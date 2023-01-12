@@ -48,7 +48,8 @@ def download_sentinel_data(
 
     products = api.query(
         footprint,
-        date=(start_date, end_date),
+        # FIXME: this should be uncommented but it actually prevents us to get any result
+        # date=(start_date, end_date),
         platformname=platformname,
         producttype=producttype,
     )
