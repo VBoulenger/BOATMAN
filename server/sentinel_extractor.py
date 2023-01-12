@@ -51,7 +51,7 @@ def download_sentinel_data(
         producttype=producttype,
     )
 
-    # Convert to Pandas DataFrame
-    api.to_dataframe(products)
-
-    api.download_all(products, directory_path=directory_path)
+    # Usually, products are added to the OrderedDict in antichronological order,
+    # it means that popping the first entered item should return us the last product.
+    latest_product_id = products.popitem(last=False)[0]
+    api.download_all([latest_product_id], directory_path=directory_path)
