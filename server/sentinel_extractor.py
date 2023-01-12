@@ -39,6 +39,8 @@ def download_sentinel_data(
         Indicates product type (default to 'GRD').
     """
 
+    assert start_date <= end_date
+
     api = SentinelAPI(None, None)
     footprint = geojson_to_wkt(request_geojson)
 
