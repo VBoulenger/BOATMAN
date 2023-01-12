@@ -2,6 +2,8 @@
 This module handles everything related to the download of files from the Copernicus Open Access Hub.
 """
 from datetime import date
+from pathlib import Path
+from typing import Optional
 
 from geojson import FeatureCollection
 from sentinelsat import geojson_to_wkt
@@ -15,7 +17,7 @@ def download_sentinel_data(
     directory_path: str = "Data/",
     platformname: str = "Sentinel-1",
     producttype: str = "GRD",
-):
+) -> Optional[Path]:
     """
     This function download data from the Copernicus Open Access Hub based on a geojson.
     The geojson specifies the region of interest in which data is queried.
@@ -53,9 +55,13 @@ def download_sentinel_data(
 
     if len(products) == 0:
         print("Unable to find a corresponding product, returning")
-        return
+        return None
 
     # Usually, products are added to the OrderedDict in antichronological order,
     # it means that popping the first entered item should return us the last product.
     latest_product_id = products.popitem(last=False)[0]
-    api.download_all([latest_product_id], directory_path=directory_path)
+    result = api.download_all([latest_product_id], directory_path=directory_path)
+
+    downloaded_file_path = result.downloaded[latest_product_id]["path"]
+
+    return Path(downloaded_file_path)
