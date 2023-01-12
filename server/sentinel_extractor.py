@@ -12,7 +12,7 @@ def download_sentinel_data(
     request_geojson: FeatureCollection,
     start_date: date,
     end_date: date,
-    directory_path: str = ".",
+    directory_path: str = "Data/",
     platformname: str = "Sentinel-1",
     producttype: str = "GRD",
 ):
