@@ -47,8 +47,7 @@ def detect_ships_in_area(geo_dict: FeatureCollection):
     process(downloaded_file)
     db_result = parse_result(downloaded_file)
 
-    # We should probably make this global
-    session = SessionLocal()
+    session = next(get_db())
 
     if (
         session.query(Tile.dataset).filter_by(dataset=db_result.dataset).scalar()
