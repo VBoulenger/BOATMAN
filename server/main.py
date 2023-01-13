@@ -1,8 +1,12 @@
 from datetime import date
 from datetime import timedelta
+from pathlib import Path
 
 import crud
 import uvicorn
+from database import Base
+from database import engine
+from database import PATH_DB
 from database import SessionLocal
 from fastapi import Depends
 from fastapi import FastAPI
@@ -28,6 +32,8 @@ app.add_middleware(
 
 # Dependency
 def get_db():
+    if not Path(PATH_DB).exists():
+        Base.metadata.create_all(engine)
     db = SessionLocal()
     try:
         yield db
