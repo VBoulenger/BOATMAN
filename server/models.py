@@ -67,7 +67,7 @@ class Tile(Base):
 
     def __repr__(self):
         return (
-            f"<Tile(id={self.id}, input_path={self.input_path}, dataset={self.dataset},"
+            f"<Tile(input_path={self.input_path}, dataset={self.dataset},"
             f" descriptor={self.descriptor}, orbit_type={self.orbit_type},"
             f" image_width={self.image_width}, image_height={self.image_height},"
             f" acquisition_time={self.acquisition_time}, esa_processed_time={self.esa_processed_time},"
