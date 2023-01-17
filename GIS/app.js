@@ -12,6 +12,9 @@ function createRealtimeLayer(url, container) {
           "<h2 style='text-align: center;'><strong>Detection " +
           f.properties.id +
           "</strong></h2>" +
+          "<p><strong>Acquisition time: </strong>" +
+          f.properties.acquisition_time +
+          "</p>" +
           "<p><img src='/images/cargo_ship.jpg' alt='Picture of a cargo' width='100%' height='150'/></p>" +
           "<h3><strong>Position:</strong></h3>" +
           "<p style='text-align: center;'><strong>Longitude: </strong>" +
@@ -21,9 +24,9 @@ function createRealtimeLayer(url, container) {
           " deg</p>" +
           "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
           "<p style='text-align: center;'><strong>Width: </strong>" +
-          f.properties.det_w +
+          f.properties.width +
           " meters &nbsp;&nbsp;&nbsp; <strong>Length: </strong>" +
-          f.properties.det_l +
+          f.properties.length +
           " meters</p>"
         );
       });
