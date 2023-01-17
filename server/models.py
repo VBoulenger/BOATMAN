@@ -42,7 +42,14 @@ class Detection(Base):
     def to_geojson(self):
         return Feature(
             geometry=Point((self.longitude, self.latitude)),
-            properties={"id": self.id, "width": self.width, "length": self.length},
+            properties={
+                "id": self.id,
+                "width": self.width,
+                "length": self.length,
+                "acquisition_time": str(
+                    self.tile.acquisition_time.replace(microsecond=0)
+                ),
+            },
         )
 
     def __repr__(self):
