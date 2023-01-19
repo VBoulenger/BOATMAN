@@ -8,6 +8,8 @@ from typing import Union
 
 from geojson import FeatureCollection
 from models import Detection
+from models import Port
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 
@@ -24,3 +26,9 @@ def get_detections(
         dets_geojson = [det.to_geojson() for det in dets_db]
         return FeatureCollection(dets_geojson)
     return None
+
+
+def get_ports(db: Session, number: int) -> FeatureCollection:
+    ports_db = db.query(Port).order_by(desc(Port.outflows)).limit(number).all()
+    ports_geojson = [port.to_geojson() for port in ports_db]
+    return FeatureCollection(ports_geojson)
