@@ -99,3 +99,27 @@ class Tile(Base):
             f" top_left_longitude={self.top_left_longitude}, bottom_right_latitude={self.bottom_right_latitude},"
             f" bottom_right_longitude={self.bottom_right_longitude}, number_of_detections={len(self.detections)})>"
         )
+
+
+class Port(Base):
+    __tablename__ = "ports"
+
+    locode = Column(String, primary_key=True, index=True)
+
+    country = Column(String)
+    name = Column(String)
+    outflows = Column(Float)
+
+    latitude = Column(Float)
+    longitude = Column(Float)
+
+    def to_geojson(self):
+        return Feature(
+            geometry=Point((self.longitude, self.latitude)),
+            properties={
+                "locode": self.locode,
+                "country": self.country,
+                "name": self.name,
+                "outflows": self.outflows,
+            },
+        )
