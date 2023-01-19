@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from datetime import timedelta
 from pathlib import Path
@@ -13,10 +14,12 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from geojson import FeatureCollection
+from models import Port
 from models import Tile
 from result_parser import parse_result
 from sentinel_extractor import download_sentinel_data
 from ship_detection import process
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 app = FastAPI()
@@ -30,10 +33,39 @@ app.add_middleware(
 )
 
 
+def ensure_ports_table():
+    session = SessionLocal()
+
+    if inspect(engine).has_table("ports") and len(session.query(Port).all()) != 0:
+        return
+
+    print("Adding ports to the database...")
+
+    if not inspect(engine).has_table("ports"):
+        Base.metadata.create_all(engine, checkfirst=True)
+
+    with open("../Meta/ports_unique.json", "rb") as geo_f:
+        geojson = json.load(geo_f)
+    for feature in geojson["features"]:
+        session.add(
+            Port(
+                locode=feature["properties"]["LOCODE"],
+                country=feature["properties"]["Country"],
+                name=feature["properties"]["NameWoDiac"],
+                outflows=feature["properties"]["outflows"],
+                latitude=feature["geometry"]["coordinates"][1],
+                longitude=feature["geometry"]["coordinates"][0],
+            )
+        )
+    session.commit()
+    session.close()
+
+
 # Dependency
 def get_db():
     if not Path(PATH_DB).exists():
         Base.metadata.create_all(engine)
+    ensure_ports_table()
     db = SessionLocal()
     try:
         yield db
