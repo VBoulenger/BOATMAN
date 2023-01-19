@@ -1,103 +1,42 @@
-function createRealtimeLayer(url, container) {
-  return L.realtime(url, {
-    interval: 10 * 60 * 1000, // milliseconds
-    getFeatureId: function (f) {
-      return f.properties.id;
-    },
-    cache: true,
-    container: container,
-    onEachFeature(f, l) {
-      l.bindPopup(function () {
-        return (
-          "<h2 style='text-align: center;'><strong>Detection " +
-          f.properties.id +
-          "</strong></h2>" +
-          "<p><strong>Acquisition time: </strong>" +
-          f.properties.acquisition_time +
-          "</p>" +
-          "<p><img src='/images/cargo_ship.jpg' alt='Picture of a cargo' width='100%' height='150'/></p>" +
-          "<h3><strong>Position:</strong></h3>" +
-          "<p style='text-align: center;'><strong>Longitude: </strong>" +
-          f.geometry.coordinates[0].toFixed(2) +
-          " deg&nbsp;&nbsp;&nbsp;&nbsp; <strong>Latitude: </strong>" +
-          f.geometry.coordinates[1].toFixed(2) +
-          " deg</p>" +
-          "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
-          "<p style='text-align: center;'><strong>Width: </strong>" +
-          f.properties.width +
-          " meters &nbsp;&nbsp;&nbsp; <strong>Length: </strong>" +
-          f.properties.length +
-          " meters</p>"
-        );
-      });
-    },
+function onEachFeature(feature, layer) {
+  layer.bindPopup(function () {
+    return (
+      "<h2 style='text-align: center;'><strong>Detection " +
+      feature.properties.id +
+      "</strong></h2>" +
+      "<p><strong>Acquisition time: </strong>" +
+      feature.properties.acquisition_time +
+      "</p>" +
+      "<p><img src='/images/cargo_ship.jpg' alt='Picture of a cargo' width='100%' height='150'/></p>" +
+      "<h3><strong>Position:</strong></h3>" +
+      "<p style='text-align: center;'><strong>Longitude: </strong>" +
+      feature.geometry.coordinates[0].toFixed(2) +
+      " deg&nbsp;&nbsp;&nbsp;&nbsp; <strong>Latitude: </strong>" +
+      feature.geometry.coordinates[1].toFixed(2) +
+      " deg</p>" +
+      "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
+      "<p style='text-align: center;'><strong>Width: </strong>" +
+      feature.properties.width +
+      " meters &nbsp;&nbsp;&nbsp; <strong>Length: </strong>" +
+      feature.properties.length +
+      " meters</p>"
+    );
   });
 }
 
-// Initialize date form -----------------------------------------------------------------
-
-// Get the input elements
-var fromInput = document.getElementById("from");
-var toInput = document.getElementById("to");
-
-// Get today's date or local storage
-var endDate = new Date(localStorage.getItem("endDate")) || new Date();
-var startDate =
-  new Date(localStorage.getItem("startDate")) ||
-  new Date().setDate(new Date().getDate() - 4);
-
-// Format the date as a string in the "yyyy-mm-dd" format
-var endDateString =
-  endDate.getFullYear() +
-  "-" +
-  (endDate.getMonth() + 1).toString().padStart(2, "0") +
-  "-" +
-  endDate.getDate().toString().padStart(2, "0");
-var startDateString =
-  startDate.getFullYear() +
-  "-" +
-  (startDate.getMonth() + 1).toString().padStart(2, "0") +
-  "-" +
-  startDate.getDate().toString().padStart(2, "0");
-
-// Set the value of the input elements to the formatted date string
-fromInput.value = startDateString;
-toInput.value = endDateString;
-
-// Save data between reload
-
-window.onbeforeunload = function () {
-  localStorage.setItem("startDate", document.getElementById("from").value);
-  localStorage.setItem("endDate", document.getElementById("to").value);
-};
-
-// Create url for server query ----------------------------------------------------------
-
-var searchParams = new URLSearchParams();
-searchParams.set("start_date", startDateString);
-searchParams.set("end_date", endDateString);
-var searchString = searchParams.toString();
-
-// Create the URL object
-var url = new URL("http://localhost:8000/ships.geojson");
-
-// Append the search string to the URL
-url.search = searchString;
-
 // Initialize the map -------------------------------------------------------------------
+
 var southWest = L.latLng(-90, -180),
   northEast = L.latLng(90, 180),
   bounds = L.latLngBounds(southWest, northEast);
 
 var map = L.map("map", {
-    center: [0, 0],
-    zoom: 2,
-    maxZoom: 18,
-    minZoom: 2,
-    maxBounds: bounds,
-  }),
-  clusterGroup = L.markerClusterGroup().addTo(map),
-  realtime = createRealtimeLayer(url, clusterGroup).addTo(map);
+  center: [0, 0],
+  zoom: 2,
+  maxZoom: 18,
+  minZoom: 2,
+  maxBounds: bounds,
+});
 
 // Initialize the base layer
 L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
@@ -132,6 +71,110 @@ L.control
     },
   })
   .addTo(map);
+
+// Initialize date form -----------------------------------------------------------------
+
+// Get the input elements
+var fromInput = document.getElementById("from");
+var toInput = document.getElementById("to");
+
+// Get today's date or local storage
+var endDate = new Date();
+var startDate = new Date(endDate);
+startDate.setDate(endDate.getDate() - 5);
+
+// Format the date as a string in the "yyyy-mm-dd" format
+var endDateString =
+  endDate.getFullYear() +
+  "-" +
+  (endDate.getMonth() + 1).toString().padStart(2, "0") +
+  "-" +
+  endDate.getDate().toString().padStart(2, "0");
+var startDateString =
+  startDate.getFullYear() +
+  "-" +
+  (startDate.getMonth() + 1).toString().padStart(2, "0") +
+  "-" +
+  startDate.getDate().toString().padStart(2, "0");
+
+// Set the value of the input elements to the formatted date string
+fromInput.value = startDateString;
+toInput.value = endDateString;
+
+// Create url for server query ----------------------------------------------------------
+
+var searchParams = new URLSearchParams();
+searchParams.set("start_date", startDateString);
+searchParams.set("end_date", endDateString);
+var searchString = searchParams.toString();
+
+// Create the URL object
+var url = new URL("http://localhost:8000/ships.geojson");
+
+// Append the search string to the URL
+url.search = searchString;
+
+// Query server -------------------------------------------------------------------------
+
+var clusterGroup = L.markerClusterGroup();
+
+$.ajax({
+  url: url,
+  type: "GET",
+  dataType: "json",
+  success: function (data) {
+    var geoJSONLayer = L.geoJSON(data, {
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        var marker = L.marker(latlng);
+        clusterGroup.addLayer(marker);
+        return marker;
+      },
+    });
+    map.addLayer(clusterGroup);
+  },
+  error: function (xhr, status, error) {
+    console.log("Error: " + error);
+  },
+});
+
+// Date form query ----------------------------------------------------------------------
+
+document.getElementById("form").addEventListener("submit", function (event) {
+  event.preventDefault();
+  clusterGroup.clearLayers();
+
+  startDateString = fromInput.value;
+  endDateString = toInput.value;
+
+  var searchParams = new URLSearchParams();
+  searchParams.set("start_date", startDateString);
+  searchParams.set("end_date", endDateString);
+  var searchString = searchParams.toString();
+
+  var url = new URL("http://localhost:8000/ships.geojson");
+  url.search = searchString;
+
+  $.ajax({
+    url: url,
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      var geoJSONLayer = L.geoJSON(data, {
+        onEachFeature: onEachFeature,
+        pointToLayer: function (feature, latlng) {
+          var marker = L.marker(latlng);
+          clusterGroup.addLayer(marker);
+          return marker;
+        },
+      });
+      map.addLayer(clusterGroup);
+    },
+    error: function (xhr, status, error) {
+      console.log("Error: " + error);
+    },
+  });
+});
 
 // Draw ---------------------------------------------------------------------------------
 
