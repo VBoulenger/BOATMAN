@@ -85,8 +85,17 @@ var url = new URL("http://localhost:8000/ships.geojson");
 url.search = searchString;
 
 // Initialize the map -------------------------------------------------------------------
+var southWest = L.latLng(-90, -180),
+  northEast = L.latLng(90, 180),
+  bounds = L.latLngBounds(southWest, northEast);
 
-var map = L.map("map", { center: [0, 0], zoom: 2.5, maxZoom: 18 }),
+var map = L.map("map", {
+    center: [0, 0],
+    zoom: 2,
+    maxZoom: 18,
+    minZoom: 2,
+    maxBounds: bounds,
+  }),
   clusterGroup = L.markerClusterGroup().addTo(map),
   realtime = createRealtimeLayer(url, clusterGroup).addTo(map);
 
