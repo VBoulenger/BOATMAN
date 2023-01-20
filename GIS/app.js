@@ -187,12 +187,31 @@ $.ajax({
 
 // Ports
 
+var maxOutflows = 0;
+
 $.ajax({
   url: url_ports,
   type: "GET",
   dataType: "json",
   success: function (data) {
+    for (var i = 0; i < data.features.length; i++) {
+      var outflows = data.features[i].properties.outflows;
+      if (outflows > maxOutflows) {
+        maxOutflows = outflows;
+      }
+    }
     var geoJSONLayer = L.geoJSON(data, {
+      pointToLayer: function (feature, latlng) {
+        var outflows = feature.properties.outflows;
+        var size = (outflows / maxOutflows) * 20;
+        var marker = L.circleMarker(latlng, {
+          radius: size,
+          color: "red",
+          weight: 1,
+          fillOpacity: 0.8,
+        });
+        return marker;
+      },
       onEachFeature: onEachFeaturePorts,
     });
     geoJSONLayer.addTo(map);
