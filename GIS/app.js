@@ -1,3 +1,13 @@
+function addCommas(num) {
+  let numString = num.toString();
+  let lastThree = numString.match(/\d{1,3}(?=(\d{3})+$)/);
+  while (lastThree) {
+    numString = numString.replace(lastThree[0], lastThree[0] + ",");
+    lastThree = numString.match(/\d{1,3}(?=(\d{3})+$)/);
+  }
+  return numString;
+}
+
 function onEachFeatureShips(feature, layer) {
   layer.bindPopup(function () {
     return (
@@ -44,8 +54,8 @@ function onEachFeaturePorts(feature, layer) {
       " deg</p>" +
       "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
       "<p style='text-align: center;'><strong>Outflows: </strong>" +
-      feature.properties.outflows +
-      "</p>"
+      addCommas(feature.properties.outflows.toFixed(0)) +
+      " TEU for Q1 of 2020</p>"
     );
   });
 }
