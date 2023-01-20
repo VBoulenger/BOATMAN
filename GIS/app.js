@@ -1,4 +1,4 @@
-function onEachFeature(feature, layer) {
+function onEachFeatureShips(feature, layer) {
   layer.bindPopup(function () {
     return (
       "<h2 style='text-align: center;'><strong>Detection " +
@@ -20,6 +20,32 @@ function onEachFeature(feature, layer) {
       " meters &nbsp;&nbsp;&nbsp; <strong>Length: </strong>" +
       feature.properties.length +
       " meters</p>"
+    );
+  });
+}
+
+function onEachFeaturePorts(feature, layer) {
+  layer.bindPopup(function () {
+    return (
+      "<h2 style='text-align: center;'><strong>Port " +
+      feature.properties.name +
+      "</strong></h2>" +
+      "<p style='text-align: center;'><strong>Country: </strong>" +
+      feature.properties.country +
+      "&nbsp;&nbsp;&nbsp;&nbsp;<strong>LOCODE: </strong>" +
+      feature.properties.locode +
+      "</p>" +
+      "<p><img src='/images/port.jpg' alt='Picture of a port' width='100%' height='150'/></p>" +
+      "<h3><strong>Position:</strong></h3>" +
+      "<p style='text-align: center;'><strong>Longitude: </strong>" +
+      feature.geometry.coordinates[0].toFixed(2) +
+      " deg&nbsp;&nbsp;&nbsp;&nbsp; <strong>Latitude: </strong>" +
+      feature.geometry.coordinates[1].toFixed(2) +
+      " deg</p>" +
+      "<h3 style='text-align: left;'><strong>Characteristics:</strong></h3>" +
+      "<p style='text-align: center;'><strong>Outflows: </strong>" +
+      feature.properties.outflows +
+      "</p>"
     );
   });
 }
@@ -103,28 +129,39 @@ toInput.value = endDateString;
 
 // Create url for server query ----------------------------------------------------------
 
+// Boat detections
+
 var searchParams = new URLSearchParams();
 searchParams.set("start_date", startDateString);
 searchParams.set("end_date", endDateString);
 var searchString = searchParams.toString();
 
-// Create the URL object
-var url = new URL("http://localhost:8000/ships.geojson");
+var url_ships = new URL("http://localhost:8000/ships.geojson");
 
-// Append the search string to the URL
-url.search = searchString;
+url_ships.search = searchString;
+
+// Ports
+
+var searchParams = new URLSearchParams();
+searchParams.set("number", 50);
+var searchString = searchParams.toString();
+
+var url_ports = new URL("http://localhost:8000/ports.geojson");
+
+url_ports.search = searchString;
 
 // Query server -------------------------------------------------------------------------
 
+// Boat detections
 var clusterGroup = L.markerClusterGroup();
 
 $.ajax({
-  url: url,
+  url: url_ships,
   type: "GET",
   dataType: "json",
   success: function (data) {
     var geoJSONLayer = L.geoJSON(data, {
-      onEachFeature: onEachFeature,
+      onEachFeature: onEachFeatureShips,
       pointToLayer: function (feature, latlng) {
         var marker = L.marker(latlng);
         clusterGroup.addLayer(marker);
@@ -132,6 +169,23 @@ $.ajax({
       },
     });
     map.addLayer(clusterGroup);
+  },
+  error: function (xhr, status, error) {
+    console.log("Error: " + error);
+  },
+});
+
+// Ports
+
+$.ajax({
+  url: url_ports,
+  type: "GET",
+  dataType: "json",
+  success: function (data) {
+    var geoJSONLayer = L.geoJSON(data, {
+      onEachFeature: onEachFeaturePorts,
+    });
+    geoJSONLayer.addTo(map);
   },
   error: function (xhr, status, error) {
     console.log("Error: " + error);
