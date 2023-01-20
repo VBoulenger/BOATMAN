@@ -43,6 +43,9 @@ def download_sentinel_data(
 
     assert start_date <= end_date
 
+    if len(request_geojson["features"]) == 0:
+        return None
+
     api = SentinelAPI(None, None)
     footprint = geojson_to_wkt(request_geojson)
 
