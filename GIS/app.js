@@ -66,18 +66,38 @@ var southWest = L.latLng(-90, -180),
   northEast = L.latLng(90, 180),
   bounds = L.latLngBounds(southWest, northEast);
 
+// Initialize the base layers
+var googleHybrid = L.tileLayer(
+  "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+  {
+    attribution: "Google Satellite Hybrid",
+  },
+);
+
+var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "© OpenStreetMap",
+});
+
 var map = L.map("map", {
   center: [0, 0],
   zoom: 2,
   maxZoom: 18,
   minZoom: 2,
   maxBounds: bounds,
+  layers: [osm, googleHybrid],
 });
 
-// Initialize the base layer
-L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
-  attribution: "Google Satellite Hybrid",
-}).addTo(map);
+var clusterGroup = L.markerClusterGroup();
+
+var baseMaps = {
+  GoogleSatelliteHybrid: googleHybrid,
+  OpenStreetmap: osm,
+};
+
+var overlayMaps = { Ships: clusterGroup };
+
+var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 L.control
   .coordinates({
@@ -163,7 +183,6 @@ url_ports.search = searchString;
 // Query server -------------------------------------------------------------------------
 
 // Boat detections
-var clusterGroup = L.markerClusterGroup();
 
 $.ajax({
   url: url_ships,
@@ -214,7 +233,8 @@ $.ajax({
       },
       onEachFeature: onEachFeaturePorts,
     });
-    geoJSONLayer.addTo(map);
+    layerControl.addOverlay(geoJSONLayer, "Ports");
+    map.addLayer(geoJSONLayer);
   },
   error: function (xhr, status, error) {
     console.log("Error: " + error);
@@ -244,7 +264,7 @@ document.getElementById("form").addEventListener("submit", function (event) {
     dataType: "json",
     success: function (data) {
       var geoJSONLayer = L.geoJSON(data, {
-        onEachFeature: onEachFeature,
+        onEachFeature: onEachFeatureShips,
         pointToLayer: function (feature, latlng) {
           var marker = L.marker(latlng);
           clusterGroup.addLayer(marker);
