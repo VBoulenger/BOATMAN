@@ -140,7 +140,7 @@ toInput.value = endDateString;
 // Create url for server query ----------------------------------------------------------
 
 const origin = window.location.origin;
-const data_server_url = origin.replace(/:\d{4}/, ":8000") + "/";
+const data_server_url = origin.replace(/:\d{4}/, ":9967") + "/";
 
 // Boat detections
 
