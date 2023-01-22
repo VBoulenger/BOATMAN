@@ -159,6 +159,9 @@ toInput.value = endDateString;
 
 // Create url for server query ----------------------------------------------------------
 
+const origin = window.location.origin;
+const data_server_url = origin.replace(/:\d{4}/, ":8000") + "/";
+
 // Boat detections
 
 var searchParams = new URLSearchParams();
@@ -166,7 +169,7 @@ searchParams.set("start_date", startDateString);
 searchParams.set("end_date", endDateString);
 var searchString = searchParams.toString();
 
-var url_ships = new URL("http://localhost:8000/ships.geojson");
+const url_ships = new URL(data_server_url + "ships.geojson");
 
 url_ships.search = searchString;
 
@@ -176,7 +179,7 @@ var searchParams = new URLSearchParams();
 searchParams.set("number", 50);
 var searchString = searchParams.toString();
 
-var url_ports = new URL("http://localhost:8000/ports.geojson");
+const url_ports = new URL(data_server_url + "ports.geojson");
 
 url_ports.search = searchString;
 
