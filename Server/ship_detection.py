@@ -1,10 +1,21 @@
 """
 Extract ship coordinates from SENTINEL-1 data files
 """
+import contextlib
+import time
 from pathlib import Path
 
 from snapista import Graph
 from snapista import Operator
+
+
+@contextlib.contextmanager
+def timer(operation_name: str):
+    saved = time.time()
+    try:
+        yield operation_name
+    finally:
+        print(f"{operation_name} took {time.time() - saved:.2f}s")
 
 
 def add_read_node(graph_l: Graph, input_filename: Path):
@@ -114,7 +125,8 @@ def process(filename: Path):
     add_preprocessing(graph)
     add_write_node(graph, output_path)
 
-    graph.run()
+    with timer("Graph execution"):
+        graph.run()
 
 
 if __name__ == "__main__":
