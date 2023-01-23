@@ -18,6 +18,30 @@ This project is a boat monitoring system that uses satellite imagery from the Co
 
 The system is composed of a frontend, the GIS, and a backend, the server. The frontend is built using JavaScript, specifically the Leaflet library, which allows us to create interactive maps that can display and update the position of boats in real time. The backend is built using Python and the library FastAPI, which allows it to handle the interactions with the frontend. The server is also where we download and process the Sentinel-1 data from the Copernicus Program.
 
+## Screenshots of the GIS
+
+When launching the GIS for the first time, you will face a map of the word.
+The view is interactive and aims to be user-friendly.
+You can move the map and zoom with usual mouse usages.
+
+![global_view](Meta/images/global.png)
+
+Using the layer button on the top right, you can add main harbors of the world.
+
+![harbors](Meta/images/harbors.png)
+
+Now, with the buttons on the left side, you can select a region.
+
+![selection](Meta/images/selection.png)
+
+By pressing, the "Run Analysis" button, the GIS will interact with the server to retrieve boat position.
+
+![boat_detections](Meta/images/boat_detections.png)
+
+We also have the ability to change the map background and use OpenStreetMap instead of Google Satellite.
+
+![open_street_map.png](Meta/images/open_street_map.png)
+
 ## Server Side
 
 ### Installation
