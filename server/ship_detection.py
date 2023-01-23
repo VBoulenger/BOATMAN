@@ -39,7 +39,7 @@ def add_land_sea_mask(graph_l: Graph):
             landMask="true",
             useSRTM="true",
             invertGeometry="false",
-            shorelineExtension=10,
+            shorelineExtension="20",
         ),
         node_id="land_sea_mask",
         source="read",
