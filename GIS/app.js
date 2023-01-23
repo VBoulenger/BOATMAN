@@ -319,9 +319,7 @@ document.getElementById("analysis").onclick = function (e) {
     type: "post",
     dataType: "json",
     data: JSON.stringify(data),
-    success: function (result) {
-      console.log(result);
-    },
+    success: function (result) {},
     error: function (xhr, resp, text) {
       console.log(xhr, resp, text);
     },
@@ -332,7 +330,7 @@ document.getElementById("analysis").onclick = function (e) {
 
 document.getElementById("export").onclick = function (e) {
   $.ajax({
-    url: polygon_url,
+    url: url_ships,
     async: true,
     type: "get",
     dataType: "text",
