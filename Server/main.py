@@ -2,6 +2,7 @@ import json
 from datetime import date
 from datetime import timedelta
 from pathlib import Path
+from threading import Lock
 
 import crud
 import uvicorn
@@ -61,11 +62,16 @@ def ensure_ports_table():
     session.close()
 
 
-# Dependency
+db_creation_lock = Lock()
+
+
 def get_db():
-    if not Path(PATH_DB).exists():
-        Base.metadata.create_all(engine)
-    ensure_ports_table()
+    global db_creation_lock
+    with db_creation_lock:
+        if not Path(PATH_DB).exists():
+            Base.metadata.create_all(engine)
+        ensure_ports_table()
+
     db = SessionLocal()
     try:
         yield db
