@@ -32,17 +32,28 @@ def add_write_node(graph_l: Graph, output_filename: Path):
     )
 
 
+def add_land_mask_vector(graph_l: Graph, vector_file: Path):
+    graph_l.add_node(
+        operator=Operator(
+            "Import-Vector", vectorFile=str(vector_file), separateShapes="false"
+        ),
+        node_id="import-vector",
+        source="read",
+    )
+
+
 def add_land_sea_mask(graph_l: Graph):
     graph_l.add_node(
         operator=Operator(
             "Land-Sea-Mask",
-            landMask="true",
-            useSRTM="true",
-            invertGeometry="false",
-            shorelineExtension=10,
+            landMask="false",
+            useSRTM="false",
+            geometry="land_polygons",
+            invertGeometry="true",
+            shorelineExtension="0",  # Unfortunately, this parameter can't be used in combination with geometry
         ),
         node_id="land_sea_mask",
-        source="read",
+        source="import-vector",
     )
 
 
@@ -92,6 +103,7 @@ def add_object_discrimination(graph_l: Graph):
 
 
 def add_preprocessing(graph_l: Graph):
+    add_land_mask_vector(graph_l, Path("land-polygons-complete-4326/land_polygons.shp"))
     add_land_sea_mask(graph_l)
     add_calibration(graph_l)
     add_adaptive_thresholding(graph_l)
