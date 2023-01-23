@@ -3,6 +3,8 @@ repos:
     rev: v4.4.0
     hooks:
       - id: check-added-large-files # prevents giant files from being committed.
+        args:
+          - --maxkb=5000
       - id: check-case-conflict # checks for files that would conflict in case-insensitive file systems.
       - id: check-json # checks JSON files for parsable syntax.
       - id: check-merge-conflict # checks for files that contain merge conflict strings.
