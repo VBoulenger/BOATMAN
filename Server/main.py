@@ -102,6 +102,8 @@ def detect_ships_in_area(geo_dict: FeatureCollection):
         session.add(db_result)
         session.commit()
 
+    crud.remove_duplicates(session)
+
 
 @app.get("/ships.geojson")
 def get_ships(

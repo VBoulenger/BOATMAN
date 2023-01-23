@@ -32,3 +32,28 @@ def get_ports(db: Session, number: int) -> FeatureCollection:
     ports_db = db.query(Port).order_by(desc(Port.outflows)).limit(number).all()
     ports_geojson = [port.to_geojson() for port in ports_db]
     return FeatureCollection(ports_geojson)
+
+
+def remove_duplicates(db: Session):
+    number_of_detections = db.query(Detection.latitude, Detection.longitude).count()
+
+    duplicates = (
+        db.query(Detection)
+        .where(
+            Detection.id.not_in(
+                db.query(Detection.id).group_by(Detection.latitude, Detection.longitude)
+            )
+        )
+        .all()
+    )
+
+    for duplicate in duplicates:
+        db.delete(duplicate)
+
+    db.commit()
+
+    new_number_of_detections = db.query(Detection.latitude, Detection.longitude).count()
+
+    print(
+        f"Removed {number_of_detections - new_number_of_detections} out of {number_of_detections} detections"
+    )
