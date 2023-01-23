@@ -258,7 +258,7 @@ document.getElementById("form").addEventListener("submit", function (event) {
   searchParams.set("end_date", endDateString);
   var searchString = searchParams.toString();
 
-  var url = new URL("http://localhost:8000/ships.geojson");
+  const url = new URL(url_ships);
   url.search = searchString;
 
   $.ajax({
@@ -308,11 +308,13 @@ map.on("draw:created", function (e) {
 
 // Analysis -----------------------------------------------------------------------------
 
+const polygon_url = new URL(data_server_url + "polygon");
+
 document.getElementById("analysis").onclick = function (e) {
   // Extract GeoJson from featureGroup
   var data = drawnItems.toGeoJSON();
   $.ajax({
-    url: "http://127.0.0.1:8000/polygon",
+    url: polygon_url,
     async: true,
     type: "post",
     dataType: "json",
@@ -330,13 +332,12 @@ document.getElementById("analysis").onclick = function (e) {
 
 document.getElementById("export").onclick = function (e) {
   $.ajax({
-    url: url,
+    url: polygon_url,
     async: true,
     type: "get",
     dataType: "text",
     data: "data_type=csv",
     success: function (result) {
-      console.log(typeof result);
       result = result.slice(1, result.length - 1);
       var lines = result.split("\\n");
       var items = [];
