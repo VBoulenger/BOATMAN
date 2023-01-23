@@ -1,4 +1,4 @@
-# PMI
+# BOATMAN - BOAT Monitoring and ANalysis
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -13,6 +13,8 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 Welcome to the BOATMAN repository!
+
+![global_view](GIS/images/boatman.png)
 
 This project is a boat monitoring system that uses satellite imagery from the Copernicus Program to track and display the location of boats in a geographic information system (GIS).
 
