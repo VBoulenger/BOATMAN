@@ -126,6 +126,10 @@ def error_handler(
         ws_manager.send_text_to_client(
             client_id, str(exception), logger_for_unidentified_clients
         )
+    else:
+        ws_manager.send_text_to_client(
+            client_id, "success", logger_for_unidentified_clients
+        )
 
 
 @app.get("/ships.geojson")
