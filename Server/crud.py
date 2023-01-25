@@ -9,6 +9,7 @@ from typing import Union
 from geojson import FeatureCollection
 from models import Detection
 from models import Port
+from models import Tile
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
@@ -16,14 +17,19 @@ from sqlalchemy.orm import Session
 def get_detections(
     db: Session, start_date: datetime.date, end_date: datetime.date, data_type: str
 ) -> Union[str, FeatureCollection, None]:
-    dets_db = db.query(Detection).all()
+    detections = (
+        db.query(Detection)
+        .join(Tile)
+        .filter(Tile.acquisition_time > start_date, Tile.acquisition_time < end_date)
+        .all()
+    )
     if data_type == "csv":
-        headers = dets_db[0].attributes_string()
-        dets_csv = [det.to_csv() for det in dets_db]
+        headers = detections[0].attributes_string()
+        dets_csv = [det.to_csv() for det in detections]
         dets_csv.insert(0, headers)
         return "\n".join(dets_csv)
     if data_type == "geojson":
-        dets_geojson = [det.to_geojson() for det in dets_db]
+        dets_geojson = [det.to_geojson() for det in detections]
         return FeatureCollection(dets_geojson)
     return None
 
