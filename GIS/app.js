@@ -79,6 +79,11 @@ function createStringForURLParameters() {
   return searchParams.toString();
 }
 
+function setButtonState(activate) {
+  document.getElementById("export").disabled = !activate;
+  document.getElementById("analysis").disabled = !activate;
+}
+
 // Initialize the map -------------------------------------------------------------------
 
 var southWest = L.latLng(-90, -180),
@@ -275,7 +280,13 @@ const ws_data_server_url =
 const ws = new WebSocket(ws_data_server_url + ws_client_id);
 
 ws.onmessage = function (event) {
+  if (event.data === "success") {
+    setButtonState(true);
+    return;
+  }
+
   alert(event.data);
+  setButtonState(true);
 };
 
 // Draw ---------------------------------------------------------------------------------
@@ -312,6 +323,7 @@ document.getElementById("analysis").onclick = function (e) {
   const parameters = createStringForURLParameters();
   let polygon_with_parameters = polygon_url;
   polygon_with_parameters.search = parameters;
+  setButtonState(false);
   $.ajax({
     url: polygon_with_parameters,
     async: true,
