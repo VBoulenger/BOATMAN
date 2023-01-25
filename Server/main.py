@@ -79,11 +79,13 @@ def get_db():
         db.close()
 
 
-def detect_ships_in_area(geo_dict: FeatureCollection):
-    end_req_date = date.today()
-    start_req_date = end_req_date - timedelta(days=5)
+def detect_ships_in_area(
+    geo_dict: FeatureCollection,
+    start_time: date = date.today() - timedelta(days=5),
+    end_time: date = date.today(),
+):
 
-    downloaded_file = download_sentinel_data(geo_dict, start_req_date, end_req_date)
+    downloaded_file = download_sentinel_data(geo_dict, start_time, end_time)
 
     if downloaded_file is None:
         return
@@ -125,9 +127,9 @@ def get_ports(
 
 
 @app.post("/polygon")
-async def get_polygon_data(req: Request):
+async def get_polygon_data(req: Request, start_date: date, end_date: date):
     geo_dict = await req.json()
-    detect_ships_in_area(geo_dict)
+    detect_ships_in_area(geo_dict, start_date, end_date)
     return
 
 

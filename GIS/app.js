@@ -315,9 +315,12 @@ const polygon_url = new URL(data_server_url + "polygon");
 
 document.getElementById("analysis").onclick = function (e) {
   // Extract GeoJson from featureGroup
-  var data = drawnItems.toGeoJSON();
+  const data = drawnItems.toGeoJSON();
+  const parameters = createStringForURLParameters();
+  let polygon_with_parameters = polygon_url;
+  polygon_with_parameters.search = parameters;
   $.ajax({
-    url: polygon_url,
+    url: polygon_with_parameters,
     async: true,
     type: "post",
     dataType: "json",
