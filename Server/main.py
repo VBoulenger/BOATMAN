@@ -88,7 +88,7 @@ def detect_ships_in_area(
     downloaded_file = download_sentinel_data(geo_dict, start_time, end_time)
 
     if downloaded_file is None:
-        return
+        raise FileNotFoundError("Error while downloading the file.")
 
     process(downloaded_file)
     db_result = parse_result(downloaded_file)
@@ -99,7 +99,7 @@ def detect_ships_in_area(
         session.query(Tile.dataset).filter_by(dataset=db_result.dataset).scalar()
         is not None
     ):
-        print("Product already exists in database, skipping")
+        raise ValueError("Product already exists in database.")
     else:
         session.add(db_result)
         session.commit()

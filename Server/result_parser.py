@@ -108,7 +108,7 @@ def parse_metadata(input_data: Path):
         delta = last_line_time - first_line_time
         result.acquisition_time = first_line_time + delta / 2
     else:
-        raise ValueError("Unable to parse dates")
+        raise ValueError("Unable to parse dates.")
 
     result.processed_time = datetime.now()
 

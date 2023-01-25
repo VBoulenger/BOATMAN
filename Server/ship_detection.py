@@ -116,8 +116,7 @@ def process(filename: Path):
     output_path = filename.with_suffix(".dim")
 
     if output_path.exists():
-        print("Result already exists, skipping")
-        return
+        raise ValueError("Result already exists.")
 
     graph = Graph()
 

@@ -3,7 +3,6 @@ This module handles everything related to the download of files from the Coperni
 """
 from datetime import date
 from pathlib import Path
-from typing import Optional
 
 from geojson import FeatureCollection
 from sentinelsat import geojson_to_wkt
@@ -17,7 +16,7 @@ def download_sentinel_data(
     directory_path: str = "Data/",
     platformname: str = "Sentinel-1",
     producttype: str = "GRD",
-) -> Optional[Path]:
+) -> Path:
     """
     This function download data from the Copernicus Open Access Hub based on a geojson.
     The geojson specifies the region of interest in which data is queried.
@@ -41,10 +40,11 @@ def download_sentinel_data(
         Indicates product type (default to 'GRD').
     """
 
-    assert start_date <= end_date
+    if start_date > end_date:
+        raise ValueError("End date should be later than start date.")
 
     if len(request_geojson["features"]) == 0:
-        return None
+        raise ValueError("No polygon provided.")
 
     api = SentinelAPI(None, None)
     footprint = geojson_to_wkt(request_geojson)
@@ -57,8 +57,9 @@ def download_sentinel_data(
     )
 
     if len(products) == 0:
-        print("Unable to find a corresponding product, returning")
-        return None
+        raise ValueError(
+            "Unable to find a product with corresponding dates or positions."
+        )
 
     # Usually, products are added to the OrderedDict in antichronological order,
     # it means that popping the first entered item should return us the last product.
