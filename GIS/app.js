@@ -60,6 +60,22 @@ function onEachFeaturePorts(feature, layer) {
   });
 }
 
+function getDates() {
+  const fromInput = document.getElementById("from");
+  const toInput = document.getElementById("to");
+
+  return { from: fromInput.value, to: toInput.value };
+}
+
+function createStringForURLParameters() {
+  const range = getDates();
+
+  const searchParams = new URLSearchParams();
+  searchParams.set("start_date", range.from);
+  searchParams.set("end_date", range.to);
+  return searchParams.toString();
+}
+
 // Initialize the map -------------------------------------------------------------------
 
 var southWest = L.latLng(-90, -180),
@@ -164,14 +180,9 @@ const data_server_url = origin.replace(/:\d{4}/, ":9967") + "/";
 
 // Boat detections
 
-var searchParams = new URLSearchParams();
-searchParams.set("start_date", startDateString);
-searchParams.set("end_date", endDateString);
-var searchString = searchParams.toString();
-
 const url_ships = new URL(data_server_url + "ships.geojson");
 
-url_ships.search = searchString;
+url_ships.search = createStringForURLParameters();
 
 // Ports
 
@@ -250,16 +261,8 @@ document.getElementById("form").addEventListener("submit", function (event) {
   event.preventDefault();
   clusterGroup.clearLayers();
 
-  startDateString = fromInput.value;
-  endDateString = toInput.value;
-
-  var searchParams = new URLSearchParams();
-  searchParams.set("start_date", startDateString);
-  searchParams.set("end_date", endDateString);
-  var searchString = searchParams.toString();
-
   const url = new URL(url_ships);
-  url.search = searchString;
+  url.search = createStringForURLParameters();
 
   $.ajax({
     url: url,
