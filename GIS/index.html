@@ -58,13 +58,24 @@
       <form action="#" id="form">
         <label for="from">
           From
-          <input id="from" type="date" value="" name="from" />
+          <input
+            id="from"
+            type="date"
+            value=""
+            name="from"
+            onchange="updateShips()"
+          />
         </label>
         <label for="to">
           To
-          <input id="to" type="date" value="" name="to" />
+          <input
+            id="to"
+            type="date"
+            value=""
+            name="to"
+            onchange="updateShips()"
+          />
         </label>
-        <input type="submit" value="Update" />
       </form>
     </div>
 

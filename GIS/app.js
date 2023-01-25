@@ -184,6 +184,33 @@ const url_ships = new URL(data_server_url + "ships.geojson");
 
 url_ships.search = createStringForURLParameters();
 
+function updateShips() {
+  clusterGroup.clearLayers();
+
+  const url = new URL(url_ships);
+  url.search = createStringForURLParameters();
+
+  $.ajax({
+    url: url,
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      L.geoJSON(data, {
+        onEachFeature: onEachFeatureShips,
+        pointToLayer: function (feature, latlng) {
+          const marker = L.marker(latlng);
+          clusterGroup.addLayer(marker);
+          return marker;
+        },
+      });
+      map.addLayer(clusterGroup);
+    },
+    error: function (xhr, status, error) {
+      console.log("Error: " + error);
+    },
+  });
+}
+
 // Ports
 
 var searchParams = new URLSearchParams();
@@ -198,25 +225,7 @@ url_ports.search = searchString;
 
 // Boat detections
 
-$.ajax({
-  url: url_ships,
-  type: "GET",
-  dataType: "json",
-  success: function (data) {
-    var geoJSONLayer = L.geoJSON(data, {
-      onEachFeature: onEachFeatureShips,
-      pointToLayer: function (feature, latlng) {
-        var marker = L.marker(latlng);
-        clusterGroup.addLayer(marker);
-        return marker;
-      },
-    });
-    map.addLayer(clusterGroup);
-  },
-  error: function (xhr, status, error) {
-    console.log("Error: " + error);
-  },
-});
+updateShips();
 
 // Ports
 
@@ -253,36 +262,6 @@ $.ajax({
   error: function (xhr, status, error) {
     console.log("Error: " + error);
   },
-});
-
-// Date form query ----------------------------------------------------------------------
-
-document.getElementById("form").addEventListener("submit", function (event) {
-  event.preventDefault();
-  clusterGroup.clearLayers();
-
-  const url = new URL(url_ships);
-  url.search = createStringForURLParameters();
-
-  $.ajax({
-    url: url,
-    type: "GET",
-    dataType: "json",
-    success: function (data) {
-      var geoJSONLayer = L.geoJSON(data, {
-        onEachFeature: onEachFeatureShips,
-        pointToLayer: function (feature, latlng) {
-          var marker = L.marker(latlng);
-          clusterGroup.addLayer(marker);
-          return marker;
-        },
-      });
-      map.addLayer(clusterGroup);
-    },
-    error: function (xhr, status, error) {
-      console.log("Error: " + error);
-    },
-  });
 });
 
 // Draw ---------------------------------------------------------------------------------
