@@ -10,6 +10,7 @@ from database import Base
 from database import engine
 from database import PATH_DB
 from database import SessionLocal
+from fastapi import BackgroundTasks
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import Request
@@ -107,6 +108,13 @@ def detect_ships_in_area(
     crud.remove_duplicates(session)
 
 
+def error_handler(geo_dict: FeatureCollection, start_time: date, end_time: date):
+    try:
+        detect_ships_in_area(geo_dict, start_time, end_time)
+    except Exception as exception:
+        print(exception)
+
+
 @app.get("/ships.geojson")
 def get_ships(
     start_date: date,
@@ -127,10 +135,11 @@ def get_ports(
 
 
 @app.post("/polygon")
-async def get_polygon_data(req: Request, start_date: date, end_date: date):
+async def get_polygon_data(
+    background_tasks: BackgroundTasks, req: Request, start_date: date, end_date: date
+):
     geo_dict = await req.json()
-    detect_ships_in_area(geo_dict, start_date, end_date)
-    return
+    background_tasks.add_task(error_handler, geo_dict, start_date, end_date)
 
 
 if __name__ == "__main__":
