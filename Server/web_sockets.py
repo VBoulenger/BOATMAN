@@ -38,6 +38,6 @@ class ConnectionManager:
                 return
         on_no_client_found(client_id, message)
 
-    async def broadcast(self, message: str):
+    def broadcast(self, message: str):
         for connection in self.active_connections:
-            await connection.socket.send_text(message)
+            connection.socket.send_text(message)

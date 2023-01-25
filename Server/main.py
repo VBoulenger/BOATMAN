@@ -130,6 +130,7 @@ def error_handler(
         ws_manager.send_text_to_client(
             client_id, "success", logger_for_unidentified_clients
         )
+        ws_manager.broadcast("update_ships")
 
 
 @app.get("/ships.geojson")
