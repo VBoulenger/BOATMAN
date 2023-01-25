@@ -10,29 +10,18 @@ body {
   bottom: 0;
   width: 100%;
 }
-#analysis {
-  position: absolute;
-  top: 305px;
-  left: 10px;
-  width: 120px;
-  z-index: 500;
-  background: white;
-  color: black;
-  padding: 6px;
-  border-radius: 4px;
-  font-family: "Helvetica Neue";
-  cursor: pointer;
-  font-size: 12px;
-  text-decoration: none;
-  text-align: center;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
-}
-#export {
-  position: absolute;
+
+#buttons {
+  position: fixed;
   top: 270px;
-  left: 10px;
-  width: 120px;
   z-index: 500;
+}
+
+button {
+  position: relative;
+  margin-left: 10px;
+  margin-top: 5px;
+  width: max-content;
   background: white;
   color: black;
   padding: 6px;
@@ -44,6 +33,20 @@ body {
   text-align: center;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
 }
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+button:disabled,
+button[disabled] {
+  cursor: default;
+  background: grey;
+  border: 1px solid #999999;
+  color: #666666;
+}
+
 #time-ranges {
   position: absolute;
   top: 10px;
