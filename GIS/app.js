@@ -285,6 +285,11 @@ ws.onmessage = function (event) {
     return;
   }
 
+  if (event.data === "update_ships") {
+    updateShips();
+    return;
+  }
+
   alert(event.data);
   setButtonState(true);
 };
