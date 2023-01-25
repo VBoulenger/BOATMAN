@@ -14,6 +14,8 @@ from fastapi import BackgroundTasks
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import Request
+from fastapi import WebSocket
+from fastapi import WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from geojson import FeatureCollection
 from models import Port
@@ -23,6 +25,9 @@ from sentinel_extractor import download_sentinel_data
 from ship_detection import process
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
+from web_sockets import ConnectionManager
+
+ws_manager = ConnectionManager()
 
 app = FastAPI()
 
@@ -108,11 +113,18 @@ def detect_ships_in_area(
     crud.remove_duplicates(session)
 
 
-def error_handler(geo_dict: FeatureCollection, start_time: date, end_time: date):
+def error_handler(
+    geo_dict: FeatureCollection, client_id: int, start_time: date, end_time: date
+):
+    def logger_for_unidentified_clients(local_client_id: int, message: str):
+        print(f"Error for client with ID({local_client_id}): {message}")
+
     try:
         detect_ships_in_area(geo_dict, start_time, end_time)
     except Exception as exception:
-        print(exception)
+        ws_manager.send_text_to_client(
+            client_id, str(exception), logger_for_unidentified_clients
+        )
 
 
 @app.get("/ships.geojson")
@@ -136,10 +148,25 @@ def get_ports(
 
 @app.post("/polygon")
 async def get_polygon_data(
-    background_tasks: BackgroundTasks, req: Request, start_date: date, end_date: date
+    background_tasks: BackgroundTasks,
+    req: Request,
+    start_date: date,
+    end_date: date,
+    client_id: int = 0,
 ):
     geo_dict = await req.json()
-    background_tasks.add_task(error_handler, geo_dict, start_date, end_date)
+    background_tasks.add_task(error_handler, geo_dict, client_id, start_date, end_date)
+
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await ws_manager.connect(websocket, client_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print(f"Unexpected socket from client({client_id}): {data}")
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, client_id)
 
 
 if __name__ == "__main__":

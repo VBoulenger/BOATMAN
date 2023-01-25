@@ -1,3 +1,5 @@
+const ws_client_id = Date.now();
+
 function addCommas(num) {
   let numString = num.toString();
   let lastThree = numString.match(/\d{1,3}(?=(\d{3})+$)/);
@@ -73,6 +75,7 @@ function createStringForURLParameters() {
   const searchParams = new URLSearchParams();
   searchParams.set("start_date", range.from);
   searchParams.set("end_date", range.to);
+  searchParams.set("client_id", ws_client_id.toString());
   return searchParams.toString();
 }
 
@@ -263,6 +266,16 @@ $.ajax({
     console.log("Error: " + error);
   },
 });
+
+// Set up the WebSockets
+
+const ws_data_server_url =
+  data_server_url.replace(/http:\/\//, "ws://") + "ws/";
+const ws = new WebSocket(ws_data_server_url + ws_client_id);
+
+ws.onmessage = function (event) {
+  alert(event.data);
+};
 
 // Draw ---------------------------------------------------------------------------------
 

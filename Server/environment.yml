@@ -11,3 +11,4 @@ dependencies:
   - sentinelsat
   - fastapi
   - uvicorn
+  - websockets
