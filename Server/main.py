@@ -127,10 +127,9 @@ def error_handler(
             client_id, str(exception), logger_for_unidentified_clients
         )
     else:
-        ws_manager.send_text_to_client(
-            client_id, "success", logger_for_unidentified_clients
-        )
         ws_manager.broadcast("update_ships")
+    finally:
+        ws_manager.unblock_clients()
 
 
 @app.get("/ships.geojson")
@@ -164,12 +163,15 @@ async def get_polygon_data(
     client_id: int = 0,
 ):
     geo_dict = await req.json()
+    await ws_manager.awaitable_block_clients()
     background_tasks.add_task(error_handler, geo_dict, client_id, start_date, end_date)
 
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await ws_manager.connect(websocket, client_id)
+    if ws_manager.is_blocking:
+        await ws_manager.awaitable_block_clients()
     try:
         while True:
             data = await websocket.receive_text()

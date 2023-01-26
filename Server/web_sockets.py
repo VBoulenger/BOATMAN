@@ -13,6 +13,8 @@ class WebSocketAndId:
 
 
 class ConnectionManager:
+    is_blocking: bool = False
+
     def __init__(self):
         self.active_connections: List[WebSocketAndId] = []
 
@@ -22,6 +24,19 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket, socket_id: int):
         self.active_connections.remove(WebSocketAndId(websocket, socket_id))
+
+    def unblock_clients(self):
+        self.is_blocking = False
+        self.broadcast("unblock")
+
+    def block_clients(self):
+        self.is_blocking = True
+        self.broadcast("block")
+
+    async def awaitable_block_clients(self):
+        self.is_blocking = True
+        for connection in self.active_connections:
+            await connection.socket.send_text("block")
 
     # notice: changed from async to sync as background tasks mess up with async functions
     # https://stackoverflow.com/questions/73707373/how-to-return-the-result-of-backgroundtasks-as-websocket-answer-in-fastapi
@@ -40,4 +55,4 @@ class ConnectionManager:
 
     def broadcast(self, message: str):
         for connection in self.active_connections:
-            connection.socket.send_text(message)
+            self.send_text_to_client(connection.id, message, lambda x: None)
