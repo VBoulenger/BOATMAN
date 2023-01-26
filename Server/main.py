@@ -13,6 +13,7 @@ from database import SessionLocal
 from fastapi import BackgroundTasks
 from fastapi import Depends
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi import Request
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
@@ -134,7 +135,10 @@ def get_ships(
     data_type: str = "geojson",
     db: Session = Depends(get_db),
 ):
-    assert end_date > start_date
+    if end_date < start_date:
+        raise HTTPException(
+            status_code=406, detail="End date should be later than start date."
+        )
     return crud.get_detections(db, start_date, end_date, data_type)
 
 
