@@ -279,8 +279,13 @@ const ws_data_server_url =
 const ws = new WebSocket(ws_data_server_url + ws_client_id);
 
 ws.onmessage = function (event) {
-  if (event.data === "success") {
+  if (event.data === "unblock") {
     setButtonState(true);
+    return;
+  }
+
+  if (event.data === "block") {
+    setButtonState(false);
     return;
   }
 
