@@ -209,7 +209,8 @@ function updateShips() {
       map.addLayer(clusterGroup);
     },
     error: function (xhr, status, error) {
-      console.log("Error: " + error);
+      const message = JSON.parse(xhr.responseText).detail;
+      alert(message);
     },
   });
 }
