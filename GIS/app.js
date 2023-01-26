@@ -340,6 +340,7 @@ document.getElementById("analysis").onclick = function (e) {
 // Export -------------------------------------------------------------------------------
 
 document.getElementById("export").onclick = function (e) {
+  setButtonState(false);
   $.ajax({
     url: url_ships,
     async: true,
@@ -347,6 +348,7 @@ document.getElementById("export").onclick = function (e) {
     dataType: "text",
     data: "data_type=csv",
     success: function (result) {
+      setButtonState(true);
       result = result.slice(1, result.length - 1);
       var lines = result.split("\\n");
       var items = [];
