@@ -193,8 +193,6 @@ const url_ships = new URL(data_server_url + "ships.geojson");
 url_ships.search = createStringForURLParameters();
 
 function updateShips() {
-  clusterGroup.clearLayers();
-
   const url = new URL(url_ships);
   url.search = createStringForURLParameters();
 
@@ -203,6 +201,7 @@ function updateShips() {
     type: "GET",
     dataType: "json",
     success: function (data) {
+      clusterGroup.clearLayers();
       L.geoJSON(data, {
         onEachFeature: onEachFeatureShips,
         pointToLayer: function (feature, latlng) {
